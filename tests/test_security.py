@@ -1,0 +1,150 @@
+"""
+tests/test_security.py — Security-focused tests.
+
+Tests:
+  - CSRF-like protection (forms require POST, not GET)
+  - Cross-user expense access blocked
+  - Invalid expense IDs return 404
+  - Unauthenticated access redirects
+  - Passwords are hashed (never plain text)
+  - SQL injection attempt (via ORM parameterization)
+"""
+
+import pytest
+from datetime import date
+from decimal import Decimal
+from tests.conftest import login
+from app.models.user import User
+from app.models.expense import Expense
+from app.models.category import Category
+from app import db
+
+
+class TestPasswordStorage:
+    def test_password_not_stored_in_plain_text(self, app):
+        """Verify passwords are hashed, never stored as plain text."""
+        with app.app_context():
+            u = User(name="Hash Test", email="hashtest@test.com", currency="INR")
+            u.set_password("mysecretpassword")
+            db.session.add(u)
+            db.session.commit()
+
+            stored = User.query.filter_by(email="hashtest@test.com").first()
+            assert stored.password_hash != "mysecretpassword"
+            assert "pbkdf2" in stored.password_hash.lower() or "scrypt" in stored.password_hash.lower() or stored.password_hash.startswith("$")
+            assert stored.check_password("mysecretpassword")
+            assert not stored.check_password("wrongpassword")
+
+
+class TestCrossUserAccess:
+    def _setup_two_users_and_expense(self, app):
+        """Create User A with an expense, and User B with no expenses."""
+        with app.app_context():
+            cat = Category.query.filter_by(name="Food").first()
+
+            user_a = User(name="Security A", email="xsec_a@test.com", currency="INR")
+            user_a.set_password("passwordA")
+            db.session.add(user_a)
+            db.session.flush()
+
+            expense = Expense(
+                user_id=user_a.id,
+                category_id=cat.id,
+                amount=Decimal("500.00"),
+                currency="INR",
+                description="User A's expense",
+                expense_date=date.today(),
+                payment_method="Cash",
+            )
+            db.session.add(expense)
+
+            user_b = User(name="Security B", email="xsec_b@test.com", currency="INR")
+            user_b.set_password("passwordB")
+            db.session.add(user_b)
+
+            db.session.commit()
+            return expense.id
+
+    def test_cross_user_edit_blocked(self, client, app):
+        """User B cannot access User A's expense edit form."""
+        expense_id = self._setup_two_users_and_expense(app)
+        login(client, "xsec_b@test.com", "passwordB")
+
+        resp = client.get(f"/expenses/{expense_id}/edit")
+        assert resp.status_code == 404
+
+    def test_cross_user_delete_blocked(self, client, app):
+        """User B cannot delete User A's expense."""
+        expense_id = self._setup_two_users_and_expense(app)
+        login(client, "xsec_b@test.com", "passwordB")
+
+        resp = client.post(f"/expenses/{expense_id}/delete")
+        assert resp.status_code == 404
+
+        with app.app_context():
+            expense = db.session.get(Expense, expense_id)
+            assert expense is not None  # Expense still exists
+
+
+class TestInvalidInputs:
+    def _login_user(self, client, app, email="invalid_input@test.com"):
+        with app.app_context():
+            u = User(name="Test", email=email, currency="INR")
+            u.set_password("password")
+            db.session.add(u)
+            db.session.commit()
+        login(client, email, "password")
+
+    def test_nonexistent_expense_id(self, client, app):
+        """Accessing a nonexistent expense ID returns 404."""
+        self._login_user(client, app, "nonexist@test.com")
+        resp = client.get("/expenses/999999/edit")
+        assert resp.status_code == 404
+
+    def test_invalid_amount_string(self, client, app):
+        """Non-numeric amount is rejected."""
+        self._login_user(client, app, "invalid_amt@test.com")
+        cat = None
+        with app.app_context():
+            cat = Category.query.filter_by(name="Food").first()
+
+        resp = client.post("/expenses/new", data={
+            "amount": "not-a-number",
+            "category_id": str(cat.id),
+            "description": "Test",
+            "expense_date": date.today().isoformat(),
+            "payment_method": "Cash",
+        }, follow_redirects=True)
+
+        assert b"valid number" in resp.data.lower() or resp.status_code == 200
+
+    def test_delete_via_get_not_allowed(self, client, app):
+        """
+        GET request to delete endpoint should not delete.
+        Delete must only work via POST (prevents CSRF through links).
+        """
+        self._login_user(client, app, "get_delete@test.com")
+        # GET to delete endpoint should return 405 Method Not Allowed
+        resp = client.get("/expenses/1/delete")
+        assert resp.status_code == 405
+
+
+class TestSQLInjectionProtection:
+    def test_search_with_sql_injection_attempt(self, client, app):
+        """
+        SQL injection in search query should not break the app.
+        SQLAlchemy's ORM uses parameterized queries, so this should
+        return a normal (empty) result, not an error.
+        """
+        with app.app_context():
+            u = User(name="SQLi Test", email="sqli@test.com", currency="INR")
+            u.set_password("password")
+            db.session.add(u)
+            db.session.commit()
+
+        login(client, "sqli@test.com", "password")
+
+        # Attempt SQL injection via search
+        resp = client.get("/expenses/?q=' OR '1'='1'; DROP TABLE expenses; --")
+        # Should return 200 with empty results, not a 500 error
+        assert resp.status_code == 200

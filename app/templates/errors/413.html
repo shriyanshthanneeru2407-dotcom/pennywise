@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}File Too Large{% endblock %}
+{% block page_title %}File Too Large{% endblock %}
+{% block content %}
+<div class="empty-state" style="padding:5rem 2rem;">
+    <div class="empty-icon" style="font-size:4rem;">📁</div>
+    <h3 style="font-size:1.5rem;">File too large</h3>
+    <p>The file you uploaded is too large. Maximum size is 10 MB. Please reduce the file size and try again.</p>
+    <a href="javascript:history.back()" class="btn btn-primary">← Go Back</a>
+</div>
+{% endblock %}

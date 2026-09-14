@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<!-- ============================================================
+     PUBLIC LANDING PAGE
+     ============================================================ -->
+
+<!-- Navigation bar -->
+<nav class="landing-nav">
+    <a href="{{ url_for('main.index') }}" style="font-size:1.25rem;font-weight:800;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:0.75rem;">
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="SpendWise" class="brand-logo-img">
+        <span>Spend<span style="color:var(--primary);text-shadow:0 0 12px rgba(0,230,118,0.5);">Wise</span></span>
+        <span class="math-badge">Σ(x)</span>
+    </a>
+    <div class="flex items-center gap-3">
+        <a href="{{ url_for('auth.login') }}" class="btn btn-ghost">Sign In</a>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Get Started</a>
+    </div>
+</nav>
+
+<!-- Hero section -->
+<section class="landing-hero">
+    <div style="display:flex;justify-content:center;margin-bottom:1.5rem;">
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="SpendWise Logo" style="width:96px;height:96px;border-radius:24px;box-shadow:0 0 40px rgba(0,230,118,0.5), 0 0 80px rgba(0,230,118,0.25);border:2px solid rgba(0,230,118,0.6);">
+    </div>
+    <div style="margin-bottom:0.75rem;">
+        <span class="math-badge" style="font-size:0.8rem;padding:0.25rem 0.75rem;">
+            <span class="math-symbol">Σ</span> Precision Financial Analytics &bull; &Delta;t
+        </span>
+    </div>
+    <h1 style="letter-spacing:-0.03em;">Spend<span style="color:var(--primary);text-shadow:0 0 20px rgba(0,230,118,0.6);">Wise</span></h1>
+    <p class="hero-tagline">Understand the math behind your spending.<br>Make smarter, data-driven decisions.</p>
+    <p class="hero-desc">
+        Deterministic expense tracking, dynamic budget boundaries (&Sigma;x &le; B), and real-time statistical spending trends — with absolute privacy and zero guesswork.
+    </p>
+    <div class="landing-hero-actions">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+            Start Tracking Free &rarr;
+        </a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-lg">
+            Sign In to Dashboard
+        </a>
+    </div>
+</section>
+
+<!-- Dashboard preview -->
+<section style="padding:0 2rem 4rem;max-width:900px;margin:0 auto;">
+    <div class="card" style="overflow:hidden;box-shadow:var(--glow);">
+        <!-- Mock dashboard header -->
+        <div style="background:var(--surface-2);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;">
+            <div class="flex items-center gap-2">
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="" style="width:24px;height:24px;border-radius:6px;">
+                <span style="font-weight:700;font-size:0.95rem;color:var(--text);">SpendWise Mathematical Dashboard</span>
+            </div>
+            <span class="math-calc-tag">&Sigma; Month: Sep 2026</span>
+        </div>
+        <!-- Mock stats -->
+        <div class="card-body">
+            <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1rem;">September 2026</p>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
+                <div style="background:var(--surface-2);border-radius:var(--radius);padding:1rem;">
+                    <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.5rem;">Total Spent</div>
+                    <div style="font-size:1.5rem;font-weight:700;color:var(--text);">₹42,350</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);">67 transactions</div>
+                </div>
+                <div style="background:var(--surface-2);border-radius:var(--radius);padding:1rem;">
+                    <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.5rem;">Budget</div>
+                    <div style="font-size:1.5rem;font-weight:700;color:var(--text);">₹50,000</div>
+                    <div style="font-size:0.75rem;color:var(--warning);">84.7% used</div>
+                </div>
+                <div style="background:var(--surface-2);border-radius:var(--radius);padding:1rem;">
+                    <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.5rem;">Remaining</div>
+                    <div style="font-size:1.5rem;font-weight:700;color:var(--success);">₹7,650</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);">Until month end</div>
+                </div>
+            </div>
+            <!-- Mini expense list preview -->
+            <div style="border-top:1px solid var(--border);padding-top:1rem;">
+                <p style="font-size:0.75rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem;">Recent Expenses</p>
+                {% set preview_items = [
+                    ("Lunch – South Indian", "🍽️ Food", "₹350", "#ef4444"),
+                    ("Uber to office", "🚗 Transport", "₹280", "#3b82f6"),
+                    ("Movie tickets", "🎬 Entertainment", "₹600", "#ec4899"),
+                    ("Groceries", "🛒 Groceries", "₹1,850", "#f97316"),
+                ] %}
+                {% for item, cat, amt, color in preview_items %}
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+                    <div>
+                        <div style="font-weight:500;font-size:0.875rem;">{{ item }}</div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);">{{ cat }}</div>
+                    </div>
+                    <div style="font-weight:600;color:{{ color }};">{{ amt }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features section -->
+<section class="landing-features">
+    <div style="text-align:center;max-width:560px;margin:0 auto 2rem;">
+        <h2 style="font-size:1.75rem;margin-bottom:0.75rem;">Everything you need to manage your money</h2>
+        <p style="color:var(--text-muted);">Simple, powerful tools built for everyday use.</p>
+    </div>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">💳</div>
+            <h3>Track Expenses</h3>
+            <p>Log expenses in seconds. Add amount, category, and date — that's all you need to get started.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Understand Spending</h3>
+            <p>Visual charts show where your money goes. See spending by category, daily trends, and monthly comparisons.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Set Budgets</h3>
+            <p>Set a monthly budget and track your progress. Get notified when you're approaching the limit.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔄</div>
+            <h3>Track Recurring Bills</h3>
+            <p>Never forget a recurring expense. Track Netflix, rent, utilities, and log them with one tap.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">💡</div>
+            <h3>Smart Insights</h3>
+            <p>Automatically calculated spending observations from your real data — no AI, no guesswork.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📥</div>
+            <h3>Export Your Data</h3>
+            <p>Download all your expenses as CSV any time. Your data is always yours.</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA section -->
+<section style="text-align:center;padding:4rem 2rem;background:var(--surface);">
+    <h2 style="font-size:1.75rem;margin-bottom:0.75rem;">Ready to understand your spending?</h2>
+    <p style="color:var(--text-muted);margin-bottom:2rem;">Create your free account in seconds. No credit card required.</p>
+    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+        Get Started — Free
+    </a>
+</section>
+
+<!-- Footer -->
+<footer class="landing-footer">
+    <p>SpendWise — <em>Understand your spending. Make smarter decisions.</em></p>
+    <p style="margin-top:0.5rem;">Built with Flask &amp; PostgreSQL &bull; CS50x Final Project</p>
+</footer>
+{% endblock %}

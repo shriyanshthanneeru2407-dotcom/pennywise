@@ -1,0 +1,38 @@
+# SpendWise — Python dependencies
+# Install: pip install -r requirements.txt
+
+# Core Flask framework
+Flask==3.0.3
+
+# Database ORM and migrations
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.7
+SQLAlchemy==2.0.36
+
+# Authentication
+Flask-Login==0.6.3
+Werkzeug==3.0.6
+
+# CSRF protection
+Flask-WTF==1.2.1
+WTForms==3.1.2
+
+# Environment variables
+python-dotenv==1.0.1
+
+# Date manipulation (relativedelta for recurring)
+python-dateutil==2.9.0
+
+# PostgreSQL adapter (production) — pure Python, no compilation required
+# Switch to psycopg2-binary if your server has pg_config available
+pg8000==1.31.2
+
+# Optional: S3-compatible storage for receipts
+# boto3==1.35.0
+
+# Testing
+pytest==8.3.3
+pytest-flask==1.3.0
+
+# WSGI server for production
+gunicorn==23.0.0

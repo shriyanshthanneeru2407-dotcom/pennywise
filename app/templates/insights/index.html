@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Insights{% endblock %}
+{% block page_title %}Insights{% endblock %}
+
+{% block content %}
+<div style="max-width:900px;">
+
+<div class="flex items-center justify-between" style="margin-bottom:1.25rem;">
+    <div>
+        <p class="text-muted text-sm">
+            Statistical inferences &bull; Deterministic computations &bull; Zero external AI
+        </p>
+    </div>
+    <span class="math-badge">
+        <span class="math-symbol">&Delta;%</span> Formula: &Delta; = ((x_t &minus; x_{t-1}) / x_{t-1}) &times; 100
+    </span>
+</div>
+
+{# ---- Month comparison header cards ---- #}
+<div class="grid-3 mb-6">
+    <div class="stat-card">
+        <div class="stat-label"><span class="math-symbol">&Sigma;</span> Period t (Current)</div>
+        <div class="stat-value amount" style="color:var(--primary);">{{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.total) }}</div>
+        <div class="stat-sub flex justify-between">
+            <span>{{ summary.month_name }} {{ summary.year }}</span>
+            <span class="text-xs text-muted font-mono">&Sigma;x_i</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label"><span class="math-symbol">&Sigma;</span> Period t-1 (Prior)</div>
+        <div class="stat-value amount">{{ current_user.currency_symbol }}{{ "{:,.0f}".format(comparison.previous_total) }}</div>
+        <div class="stat-sub flex justify-between">
+            <span>{{ comparison.prev_month_name }}</span>
+            <span class="text-xs text-muted font-mono">baseline</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label"><span class="math-symbol">&Delta;%</span> Variance Rate</div>
+        {% if comparison.change_pct is not none %}
+            <div class="stat-value {% if comparison.increased %}text-danger{% else %}text-success{% endif %}">
+                {{ '+' if comparison.increased else '−' }}{{ comparison.change_pct|abs }}%
+            </div>
+            <div class="stat-sub flex justify-between">
+                <span>{% if comparison.increased %}Expenditure expansion{% else %}Expenditure contraction{% endif %}</span>
+                <span class="text-xs text-muted font-mono">&Delta;%</span>
+            </div>
+        {% else %}
+            <div class="stat-value text-muted">—</div>
+            <div class="stat-sub">Baseline pending</div>
+        {% endif %}
+    </div>
+</div>
+
+{# ---- Observations list ---- #}
+<div class="card mb-6">
+    <div class="card-header">
+        <h3 style="font-size:1rem;margin:0;">💡 Spending Observations</h3>
+    </div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:0.75rem;">
+        {% if insights %}
+            {% for insight in insights %}
+            <div class="insight-card {{ insight.type }}">
+                <p style="margin:0;font-size:0.9rem;">{{ insight.text }}</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state" style="padding:2rem 1rem;">
+                <div class="empty-icon">📊</div>
+                <h3>Not enough data yet</h3>
+                <p>Add a few expenses to see spending observations.</p>
+                <a href="{{ url_for('expenses.new') }}" class="btn btn-primary">+ Add Expense</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{# ---- Highest expense ---- #}
+{% if highest %}
+<div class="card mb-6">
+    <div class="card-header">
+        <h3 style="font-size:1rem;margin:0;">💸 Largest Expense This Month</h3>
+    </div>
+    <div class="card-body">
+        <div class="flex items-center justify-between">
+            <div>
+                <div class="font-medium" style="font-size:1.125rem;">{{ highest.description }}</div>
+                <div class="text-muted text-sm" style="margin-top:0.25rem;">
+                    {{ highest.category.icon }} {{ highest.category.name }}
+                    · {{ highest.expense_date.strftime('%d %b %Y') }}
+                    · {{ highest.payment_method }}
+                </div>
+            </div>
+            <div style="text-align:right;">
+                <div class="amount font-bold" style="font-size:1.5rem;color:var(--danger);">
+                    {{ current_user.currency_symbol }}{{ "{:,.2f}".format(highest.amount) }}
+                </div>
+                <a href="{{ url_for('expenses.edit', expense_id=highest.id) }}" class="btn btn-ghost btn-sm" style="margin-top:0.25rem;">
+                    View →
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{# ---- Category breakdown + chart ---- #}
+<div class="grid-2 mb-6">
+    <div class="card">
+        <div class="card-header">
+            <h3 style="font-size:1rem;margin:0;">📊 By Category</h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-container chart-sm">
+                <canvas id="insightsCategoryChart" aria-label="Category spending chart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 style="font-size:1rem;margin:0;">📅 6-Month Trend</h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-container chart-sm">
+                <canvas id="monthlyBarChart" aria-label="Monthly spending comparison chart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ---- Top categories list ---- #}
+{% if categories %}
+<div class="card">
+    <div class="card-header">
+        <h3 style="font-size:1rem;margin:0;">Category Breakdown</h3>
+        <span class="text-sm text-muted">{{ summary.month_name }} {{ summary.year }}</span>
+    </div>
+    <div class="card-body" style="padding:0;">
+        {% for cat in categories %}
+        <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);">
+            <div class="flex items-center justify-between" style="margin-bottom:0.375rem;">
+                <div class="flex items-center gap-2">
+                    <span class="category-dot" style="background:{{ cat.color }};width:10px;height:10px;border-radius:50%;"></span>
+                    <span class="font-medium text-sm">{{ cat.icon }} {{ cat.name }}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="badge badge-gray">{{ cat.pct }}%</span>
+                    <span class="amount font-medium" style="color:var(--danger);">
+                        {{ current_user.currency_symbol }}{{ "{:,.2f}".format(cat.total) }}
+                    </span>
+                </div>
+            </div>
+            <div class="progress-bar-container" style="height:4px;">
+                <div class="progress-bar" style="width:{{ cat.pct }}%;background:{{ cat.color }};transition:width 0.8s ease;"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

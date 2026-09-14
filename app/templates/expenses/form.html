@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action }} Expense{% endblock %}
+{% block page_title %}{{ action }} Expense{% endblock %}
+
+{% block content %}
+<div style="max-width:640px;margin:0 auto;">
+    <div class="card">
+        <div class="card-header">
+            <h3 style="font-size:1rem;margin:0;">
+                {{ '✏️ Edit Expense' if action == 'Edit' else '➕ Add Expense' }}
+            </h3>
+            <a href="{{ url_for('expenses.index') }}" class="btn btn-ghost btn-sm">Cancel</a>
+        </div>
+
+        <div class="card-body">
+            <form
+                action="{{ url_for('expenses.edit', expense_id=expense.id) if expense else url_for('expenses.new') }}"
+                method="post"
+                enctype="multipart/form-data"
+                novalidate
+            >
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                {# ---- Amount (required) ---- #}
+                <div class="form-group">
+                    <label class="form-label" for="amount">
+                        Amount <span class="required" aria-label="required">*</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-prefix">{{ current_user.currency_symbol }}</span>
+                        <input
+                            type="number"
+                            id="amount"
+                            name="amount"
+                            class="form-control"
+                            value="{{ form_data.get('amount', '') }}"
+                            step="0.01"
+                            min="0.01"
+                            max="99999999"
+                            placeholder="0.00"
+                            required
+                            autofocus
+                            data-type="amount"
+                            aria-describedby="amount-hint"
+                        >
+                    </div>
+                    <div class="form-hint" id="amount-hint">Enter the expense amount in {{ current_user.currency }}.</div>
+                </div>
+
+                {# ---- Category (required) ---- #}
+                <div class="form-group">
+                    <label class="form-label" for="category_id">
+                        Category <span class="required" aria-label="required">*</span>
+                    </label>
+                    <select id="category_id" name="category_id" class="form-control" required>
+                        <option value="">Select a category</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}"
+                            {% if form_data.get('category_id')|string == cat.id|string %}selected{% endif %}>
+                            {{ cat.icon }} {{ cat.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {# ---- Description (required) ---- #}
+                <div class="form-group">
+                    <label class="form-label" for="description">
+                        Description <span class="required" aria-label="required">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="description"
+                        name="description"
+                        class="form-control"
+                        value="{{ form_data.get('description', '') }}"
+                        placeholder="e.g. Lunch at café"
+                        required
+                        maxlength="200"
+                        aria-describedby="description-hint"
+                    >
+                    <div class="form-hint" id="description-hint">Brief label for this expense.</div>
+                </div>
+
+                {# ---- Date (required) ---- #}
+                <div class="form-group">
+                    <label class="form-label" for="expense_date">
+                        Date <span class="required" aria-label="required">*</span>
+                    </label>
+                    <input
+                        type="date"
+                        id="expense_date"
+                        name="expense_date"
+                        class="form-control"
+                        value="{{ form_data.get('expense_date', '') }}"
+                        required
+                        max="{{ today.isoformat() if today else '' }}"
+                    >
+                </div>
+
+                {# ---- Payment method ---- #}
+                <div class="form-group">
+                    <label class="form-label" for="payment_method">Payment Method</label>
+                    <select id="payment_method" name="payment_method" class="form-control">
+                        {% for method in payment_methods %}
+                        <option value="{{ method }}"
+                            {% if form_data.get('payment_method', 'Cash') == method %}selected{% endif %}>
+                            {{ method }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {# ---- Notes (optional) ---- #}
+                <div class="form-group">
+                    <label class="form-label" for="notes">Notes <span class="text-muted text-sm">(optional)</span></label>
+                    <textarea
+                        id="notes"
+                        name="notes"
+                        class="form-control"
+                        rows="2"
+                        placeholder="Any additional details…"
+                        maxlength="1000"
+                    >{{ form_data.get('notes', '') }}</textarea>
+                </div>
+
+                {# ---- Receipt (optional) ---- #}
+                <div class="form-group">
+                    <label class="form-label">
+                        Receipt <span class="text-muted text-sm">(optional — JPG, PNG, PDF, max 10 MB)</span>
+                    </label>
+
+                    {% if expense and expense.receipt %}
+                    <!-- Show existing receipt -->
+                    <div style="background:var(--surface-2);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+                        <div class="flex items-center gap-2">
+                            <span>📎</span>
+                            <div>
+                                <div class="text-sm font-medium">{{ expense.receipt.original_filename }}</div>
+                                <div class="text-xs text-muted">{{ (expense.receipt.file_size / 1024)|round(1) }} KB</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="{{ url_for('expenses.serve_receipt', key=expense.receipt.storage_key) }}"
+                               class="btn btn-ghost btn-sm" target="_blank">View</a>
+                            <label class="flex items-center gap-1 text-sm" style="cursor:pointer;">
+                                <input type="checkbox" name="delete_receipt" value="1" style="width:14px;height:14px;">
+                                <span class="text-danger">Remove</span>
+                            </label>
+                        </div>
+                    </div>
+                    <p class="text-xs text-muted" style="margin-bottom:0.5rem;">Upload a new file to replace the existing receipt:</p>
+                    {% endif %}
+
+                    <label class="file-input-label" for="receipt">
+                        <span>📎</span>
+                        <span class="file-name">Choose file…</span>
+                        <input
+                            type="file"
+                            id="receipt"
+                            name="receipt"
+                            accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+                        >
+                    </label>
+                </div>
+
+                {# ---- Actions ---- #}
+                <div class="flex gap-3" style="margin-top:1.5rem;">
+                    <button type="submit" class="btn btn-primary btn-lg" style="flex:1;">
+                        {{ '💾 Save Changes' if action == 'Edit' else '✅ Save Expense' }}
+                    </button>
+                    <a href="{{ url_for('expenses.index') }}" class="btn btn-secondary btn-lg">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

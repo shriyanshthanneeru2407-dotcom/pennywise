@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+<div class="auth-layout">
+    <div class="auth-card">
+        <!-- Brand -->
+        <div class="auth-brand">
+            <div style="font-size:2rem;margin-bottom:0.5rem;">💰</div>
+            <div class="brand-name">SpendWise</div>
+            <div class="brand-tagline">Sign in to your account</div>
+        </div>
+
+        <!-- Login form -->
+        <form action="{{ url_for('auth.login') }}" method="post" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-control"
+                    value="{{ email }}"
+                    placeholder="you@example.com"
+                    required
+                    autocomplete="email"
+                    autofocus
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password" style="display:flex;justify-content:space-between;">
+                    <span>Password</span>
+                </label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-control"
+                    placeholder="Your password"
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <div class="flex items-center gap-2" style="margin-bottom:1.25rem;">
+                <input type="checkbox" id="remember" name="remember" style="width:16px;height:16px;cursor:pointer;">
+                <label for="remember" style="font-size:0.875rem;cursor:pointer;color:var(--text-muted);">
+                    Remember me
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg">
+                Sign In
+            </button>
+        </form>
+
+        <!-- Link to register -->
+        <div style="text-align:center;margin-top:1.5rem;font-size:0.9rem;color:var(--text-muted);">
+            Don't have an account?
+            <a href="{{ url_for('auth.register') }}" style="font-weight:500;">Create one — it's free</a>
+        </div>
+
+        <!-- Demo account hint -->
+        <div class="alert alert-info" style="margin-top:1.5rem;font-size:0.8rem;">
+            <span>💡 <strong>Demo account:</strong> demo@spendwise.app / demo1234</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

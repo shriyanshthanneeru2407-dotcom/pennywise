@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ current_user.theme if (current_user.is_authenticated and current_user.theme) else 'dark' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SpendWise — Track expenses, understand your spending, make smarter decisions.">
+    <title>{% block title %}SpendWise{% endblock %} — SpendWise</title>
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Main stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Favicon using the uploaded logo -->
+    <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='images/logo.jpg') }}">
+
+    {% block head %}{% endblock %}
+</head>
+<body data-theme="{{ current_user.theme if (current_user.is_authenticated and current_user.theme) else 'dark' }}">
+
+{% if current_user.is_authenticated %}
+<!-- ============================================================
+     AUTHENTICATED LAYOUT — Sidebar + Main content
+     ============================================================ -->
+
+<!-- Sidebar overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar navigation -->
+<aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+    <!-- Brand with neon logo -->
+    <div class="sidebar-brand">
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="SpendWise Logo" class="brand-logo-img">
+        <a href="{{ url_for('dashboard.index') }}" class="brand-name" style="text-decoration:none;font-weight:800;letter-spacing:-0.02em;">
+            Spend<span style="color:var(--primary);text-shadow:0 0 10px rgba(0,230,118,0.5);">Wise</span>
+        </a>
+        <span class="math-calc-tag hide-mobile" style="margin-left:auto;" title="Mathematical analytics engine">Σ</span>
+    </div>
+
+    <!-- Navigation items -->
+    <nav class="sidebar-nav" aria-label="Navigation">
+        <div class="nav-section">
+            <span class="nav-section-label">Overview</span>
+            <a href="{{ url_for('dashboard.index') }}"
+               class="nav-item {% if request.endpoint and request.endpoint.startswith('dashboard') %}active{% endif %}"
+               aria-current="{% if request.endpoint and request.endpoint.startswith('dashboard') %}page{% endif %}">
+                <span class="nav-icon" aria-hidden="true">🏠</span>
+                Dashboard
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <span class="nav-section-label">Money &bull; Calculations</span>
+            <a href="{{ url_for('expenses.index') }}"
+               class="nav-item {% if request.endpoint and request.endpoint.startswith('expenses') and request.endpoint != 'expenses.new' %}active{% endif %}">
+                <span class="nav-icon" aria-hidden="true">💳</span>
+                Expenses
+            </a>
+            <a href="{{ url_for('expenses.new') }}"
+               class="nav-item {% if request.endpoint == 'expenses.new' %}active{% endif %}">
+                <span class="nav-icon" aria-hidden="true">➕</span>
+                Add Expense
+            </a>
+            <a href="{{ url_for('budgets.index') }}"
+               class="nav-item {% if request.endpoint and request.endpoint.startswith('budgets') %}active{% endif %}">
+                <span class="nav-icon" aria-hidden="true">🎯</span>
+                Budget <span class="math-calc-tag" style="margin-left:auto;">lim</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <span class="nav-section-label">Models &bull; Trends</span>
+            <a href="{{ url_for('recurring.index') }}"
+               class="nav-item {% if request.endpoint and request.endpoint.startswith('recurring') %}active{% endif %}">
+                <span class="nav-icon" aria-hidden="true">🔄</span>
+                Recurring <span class="math-calc-tag" style="margin-left:auto;">t+1</span>
+            </a>
+            <a href="{{ url_for('insights.index') }}"
+               class="nav-item {% if request.endpoint and request.endpoint.startswith('insights') %}active{% endif %}">
+                <span class="nav-icon" aria-hidden="true">📊</span>
+                Insights <span class="math-calc-tag" style="margin-left:auto;">Δ%</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <span class="nav-section-label">Account</span>
+            <a href="{{ url_for('settings.index') }}"
+               class="nav-item {% if request.endpoint and request.endpoint.startswith('settings') %}active{% endif %}">
+                <span class="nav-icon" aria-hidden="true">⚙️</span>
+                Settings
+            </a>
+        </div>
+    </nav>
+
+    <!-- Sidebar footer: user info + logout -->
+    <div class="sidebar-footer">
+        <div class="flex items-center gap-3" style="margin-bottom:0.75rem;">
+            <div class="user-avatar" aria-hidden="true">{{ current_user.name[0].upper() }}</div>
+            <div class="min-w-0">
+                <div class="truncate font-medium text-sm">{{ current_user.name }}</div>
+                <div class="truncate text-xs text-muted">{{ current_user.email }}</div>
+            </div>
+        </div>
+        <form action="{{ url_for('auth.logout') }}" method="post" style="margin:0;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm btn-block" style="justify-content:flex-start;">
+                <span aria-hidden="true">🚪</span> Sign Out
+            </button>
+        </form>
+    </div>
+</aside>
+
+<!-- Main content -->
+<div class="main-content">
+    <!-- Top bar -->
+    <header class="page-header">
+        <div class="flex items-center gap-3">
+            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar" aria-expanded="false">
+                ☰
+            </button>
+            <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <!-- Theme toggle -->
+            <button id="themeToggle" class="btn btn-ghost btn-sm" aria-label="Toggle dark mode" title="Toggle dark mode">
+                <span class="theme-icon">🌙</span>
+            </button>
+
+            <!-- Quick add expense (desktop header) -->
+            <a href="{{ url_for('expenses.new') }}" class="btn btn-primary btn-sm hide-mobile">
+                + Add Expense
+            </a>
+
+            <!-- User dropdown -->
+            <div class="dropdown">
+                <button class="dropdown-trigger btn btn-ghost btn-sm flex items-center gap-2" aria-label="User menu">
+                    <div class="user-avatar" style="width:28px;height:28px;font-size:0.75rem;" aria-hidden="true">
+                        {{ current_user.name[0].upper() }}
+                    </div>
+                    <span class="hide-mobile text-sm">{{ current_user.name.split()[0] }}</span>
+                </button>
+                <div class="dropdown-menu" role="menu">
+                    <a href="{{ url_for('settings.index') }}" class="dropdown-item" role="menuitem">
+                        ⚙️ Settings
+                    </a>
+                    <a href="{{ url_for('settings.export_expenses') }}" class="dropdown-item" role="menuitem">
+                        📥 Export CSV
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <form action="{{ url_for('auth.logout') }}" method="post" style="margin:0;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="dropdown-item danger" role="menuitem">
+                            🚪 Sign Out
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            <div style="padding: 1rem 1.5rem 0;">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" role="alert">
+                        <span>{{ message }}</span>
+                        <button class="alert-close" aria-label="Dismiss">×</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Page content -->
+    <main class="page-body" id="main-content">
+        {{ self.content() }}
+    </main>
+</div>
+
+<!-- Mobile bottom navigation -->
+<nav class="bottom-nav" aria-label="Mobile navigation">
+    <div class="bottom-nav-items">
+        <a href="{{ url_for('dashboard.index') }}"
+           class="bottom-nav-item {% if request.endpoint and request.endpoint.startswith('dashboard') %}active{% endif %}"
+           aria-label="Home">
+            <span class="nav-icon" aria-hidden="true">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="{{ url_for('expenses.index') }}"
+           class="bottom-nav-item {% if request.endpoint and request.endpoint.startswith('expenses') and request.endpoint != 'expenses.new' %}active{% endif %}"
+           aria-label="Expenses">
+            <span class="nav-icon" aria-hidden="true">💳</span>
+            <span>Expenses</span>
+        </a>
+        <div class="bottom-nav-add">
+            <a href="{{ url_for('expenses.new') }}" aria-label="Add expense">+</a>
+        </div>
+        <a href="{{ url_for('budgets.index') }}"
+           class="bottom-nav-item {% if request.endpoint and request.endpoint.startswith('budgets') %}active{% endif %}"
+           aria-label="Budget">
+            <span class="nav-icon" aria-hidden="true">🎯</span>
+            <span>Budget</span>
+        </a>
+        <a href="{{ url_for('insights.index') }}"
+           class="bottom-nav-item {% if request.endpoint and request.endpoint.startswith('insights') %}active{% endif %}"
+           aria-label="Insights">
+            <span class="nav-icon" aria-hidden="true">📊</span>
+            <span>Insights</span>
+        </a>
+    </div>
+</nav>
+
+{% else %}
+<!-- UNAUTHENTICATED LAYOUT -->
+{% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+        <div style="padding: 1rem; max-width: 500px; margin: 0 auto;">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" role="alert">
+                    <span>{{ message }}</span>
+                    <button class="alert-close" aria-label="Dismiss">×</button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+{% endif %}
+
+{% block content %}{% endblock %}
+
+<!-- Confirm delete modal -->
+<div class="modal-overlay" id="confirmOverlay" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="modal">
+        <h3 class="modal-title" id="confirmTitle">⚠️ Confirm Action</h3>
+        <p class="modal-body" id="confirmMessage">Are you sure you want to do this?</p>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" id="confirmCancel">Cancel</button>
+            <button class="btn btn-danger" id="confirmSubmit">Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<!-- Scripts -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

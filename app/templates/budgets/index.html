@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Budget{% endblock %}
+{% block page_title %}Budget{% endblock %}
+
+{% block content %}
+<div style="max-width:900px;">
+
+{# ---- Current month budget overview ---- #}
+<div class="grid-2 mb-6" style="grid-template-columns: 1fr 1fr;">
+    <!-- Budget status card -->
+    <div class="card">
+        <div class="card-header">
+            <h3 style="font-size:1rem;margin:0;">🎯 {{ summary.month_name }} {{ summary.year }}</h3>
+            <span class="math-badge">Σ(x) &le; B</span>
+        </div>
+        <div class="card-body">
+            {% if budget %}
+                <!-- Spent -->
+                <div class="flex justify-between items-center" style="margin-bottom:0.5rem;">
+                    <span class="text-muted text-sm">Spent</span>
+                    <span class="amount font-medium" style="color:var(--danger);">
+                        {{ current_user.currency_symbol }}{{ "{:,.2f}".format(summary.total) }}
+                    </span>
+                </div>
+                <!-- Budget -->
+                <div class="flex justify-between items-center" style="margin-bottom:0.5rem;">
+                    <span class="text-muted text-sm">Budget</span>
+                    <span class="amount font-medium">
+                        {{ current_user.currency_symbol }}{{ "{:,.2f}".format(budget.amount) }}
+                    </span>
+                </div>
+                <!-- Remaining -->
+                <div class="flex justify-between items-center" style="margin-bottom:1rem;">
+                    <span class="text-muted text-sm">Remaining</span>
+                    {% if summary.remaining >= 0 %}
+                        <span class="amount font-medium text-success">
+                            {{ current_user.currency_symbol }}{{ "{:,.2f}".format(summary.remaining) }}
+                        </span>
+                    {% else %}
+                        <span class="amount font-medium text-danger">
+                            −{{ current_user.currency_symbol }}{{ "{:,.2f}".format(summary.remaining|abs) }}
+                        </span>
+                    {% endif %}
+                </div>
+
+                <!-- Progress bar -->
+                {% if summary.budget_pct is not none %}
+                <div class="progress-bar-container" style="margin-bottom:0.5rem;">
+                    <div class="progress-bar {% if summary.budget_pct >= 100 %}danger{% elif summary.budget_pct >= 75 %}warning{% else %}success{% endif %}"
+                         style="width:{{ [summary.budget_pct, 100]|min }}%;"
+                         role="progressbar"
+                         aria-valuenow="{{ summary.budget_pct }}"
+                         aria-valuemin="0" aria-valuemax="100">
+                    </div>
+                </div>
+                <div class="flex justify-between text-xs text-muted">
+                    <span>{{ summary.budget_pct }}% used</span>
+                    <span>
+                        {% if summary.budget_pct >= 100 %}
+                            <span class="text-danger">Over budget by {{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.total - budget.amount) }}</span>
+                        {% elif summary.budget_pct >= 90 %}
+                            <span class="text-warning">Warning: approaching limit</span>
+                        {% elif summary.budget_pct >= 75 %}
+                            <span class="text-warning">75% threshold reached</span>
+                        {% else %}
+                            <span class="text-success">On track</span>
+                        {% endif %}
+                    </span>
+                </div>
+                {% endif %}
+
+            {% else %}
+                <!-- No budget set -->
+                <div class="empty-state" style="padding:1.5rem 1rem;">
+                    <div class="empty-icon" style="font-size:2rem;">🎯</div>
+                    <h3 style="font-size:1rem;">No budget set</h3>
+                    <p style="font-size:0.875rem;">Set a monthly budget to track your spending against it.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Set / update budget form -->
+    <div class="card">
+        <div class="card-header">
+            <h3 style="font-size:1rem;margin:0;">
+                {{ '✏️ Update Budget' if budget else '+ Set Budget' }}
+            </h3>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('budgets.set_budget') }}" method="post" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="form-group">
+                    <label class="form-label" for="budget_amount">
+                        Monthly Budget for {{ summary.month_name }} {{ summary.year }}
+                    </label>
+                    <div class="input-group">
+                        <span class="input-prefix">{{ current_user.currency_symbol }}</span>
+                        <input
+                            type="number"
+                            id="budget_amount"
+                            name="amount"
+                            class="form-control"
+                            value="{{ budget.amount if budget else '' }}"
+                            step="1"
+                            min="1"
+                            placeholder="e.g. 50000"
+                            required
+                            autofocus
+                        >
+                    </div>
+                    <div class="form-hint">Set a spending limit for this month.</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    {{ '💾 Update Budget' if budget else '✅ Set Budget' }}
+                </button>
+            </form>
+
+            {% if budget %}
+            <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
+                <p class="text-xs text-muted">
+                    Budget set on {{ budget.created_at.strftime('%d %b %Y') }}.
+                    Last updated {{ budget.updated_at.strftime('%d %b %Y') }}.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{# ---- Category breakdown ---- #}
+{% if categories %}
+<div class="card mb-6">
+    <div class="card-header">
+        <h3 style="font-size:1rem;margin:0;">📊 Spending by Category</h3>
+        <span class="text-sm text-muted">{{ summary.month_name }} {{ summary.year }}</span>
+    </div>
+    <div class="card-body" style="padding:0;">
+        {% for cat in categories %}
+        <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);">
+            <div class="flex items-center justify-between" style="margin-bottom:0.5rem;">
+                <div class="flex items-center gap-2">
+                    <span class="category-dot" style="background:{{ cat.color }};width:10px;height:10px;"></span>
+                    <span class="font-medium text-sm">{{ cat.icon }} {{ cat.name }}</span>
+                    <span class="badge badge-gray">{{ cat.pct }}%</span>
+                </div>
+                <span class="amount font-medium" style="color:var(--danger);">
+                    {{ current_user.currency_symbol }}{{ "{:,.2f}".format(cat.total) }}
+                </span>
+            </div>
+            <div class="progress-bar-container" style="height:5px;">
+                <div class="progress-bar" style="width:{{ cat.pct }}%;background:{{ cat.color }};"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{# ---- Monthly history ---- #}
+{% if monthly_history %}
+<div class="card">
+    <div class="card-header">
+        <h3 style="font-size:1rem;margin:0;">📅 Monthly History</h3>
+    </div>
+    <div class="card-body" style="padding:0;">
+        {% for month_data in monthly_history %}
+        <div class="flex items-center justify-between" style="padding:0.875rem 1.5rem;border-bottom:1px solid var(--border);">
+            <span class="text-sm">{{ month_data.label }}</span>
+            <span class="amount font-medium">
+                {{ current_user.currency_symbol }}{{ "{:,.0f}".format(month_data.total) }}
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+</div>
+{% endblock %}
