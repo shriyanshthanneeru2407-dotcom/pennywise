@@ -33,11 +33,10 @@
 <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
     <!-- Brand with neon logo -->
     <div class="sidebar-brand">
-        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="SpendWise Logo" class="brand-logo-img">
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="SpendWise Logo" class="brand-logo-img logo-continuous-glow">
         <a href="{{ url_for('dashboard.index') }}" class="brand-name" style="text-decoration:none;font-weight:800;letter-spacing:-0.02em;">
             Spend<span style="color:var(--primary);text-shadow:0 0 10px rgba(0,230,118,0.5);">Wise</span>
         </a>
-        <span class="math-calc-tag hide-mobile" style="margin-left:auto;" title="Mathematical analytics engine">Σ</span>
     </div>
 
     <!-- Navigation items -->
@@ -53,7 +52,7 @@
         </div>
 
         <div class="nav-section">
-            <span class="nav-section-label">Money &bull; Calculations</span>
+            <span class="nav-section-label">Money</span>
             <a href="{{ url_for('expenses.index') }}"
                class="nav-item {% if request.endpoint and request.endpoint.startswith('expenses') and request.endpoint != 'expenses.new' %}active{% endif %}">
                 <span class="nav-icon" aria-hidden="true">💳</span>
@@ -67,21 +66,21 @@
             <a href="{{ url_for('budgets.index') }}"
                class="nav-item {% if request.endpoint and request.endpoint.startswith('budgets') %}active{% endif %}">
                 <span class="nav-icon" aria-hidden="true">🎯</span>
-                Budget <span class="math-calc-tag" style="margin-left:auto;">lim</span>
+                Budget
             </a>
         </div>
 
         <div class="nav-section">
-            <span class="nav-section-label">Models &bull; Trends</span>
+            <span class="nav-section-label">Planning</span>
             <a href="{{ url_for('recurring.index') }}"
                class="nav-item {% if request.endpoint and request.endpoint.startswith('recurring') %}active{% endif %}">
                 <span class="nav-icon" aria-hidden="true">🔄</span>
-                Recurring <span class="math-calc-tag" style="margin-left:auto;">t+1</span>
+                Recurring
             </a>
             <a href="{{ url_for('insights.index') }}"
                class="nav-item {% if request.endpoint and request.endpoint.startswith('insights') %}active{% endif %}">
                 <span class="nav-icon" aria-hidden="true">📊</span>
-                Insights <span class="math-calc-tag" style="margin-left:auto;">Δ%</span>
+                Insights
             </a>
         </div>
 

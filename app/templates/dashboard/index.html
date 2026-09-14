@@ -29,80 +29,73 @@
 </div>
 
 {# ---- Summary cards ---- #}
-{# ---- Summary cards ---- #}
 <div class="dashboard-stats">
     <!-- Total Spent -->
     <div class="stat-card">
         <div class="flex items-center justify-between" style="margin-bottom:0.75rem;">
-            <span class="stat-label"><span class="math-symbol">Σ</span> Total Spent</span>
-            <span class="math-calc-tag">Σ(x)</span>
+            <span class="stat-label">Total Spent</span>
+            <div class="stat-icon" style="background:#fee2e2;">💸</div>
         </div>
         <div class="stat-value amount" style="color:var(--primary);text-shadow:0 0 12px rgba(0,230,118,0.4);">
             {{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.total) }}
         </div>
-        <div class="stat-sub flex items-center justify-between">
-            <span>{{ summary.month_name }} {{ summary.year }}</span>
-            <span class="text-xs text-muted font-mono">f(t) = total</span>
-        </div>
+        <div class="stat-sub">{{ summary.month_name }} {{ summary.year }}</div>
     </div>
 
     <!-- Budget -->
     <div class="stat-card">
         <div class="flex items-center justify-between" style="margin-bottom:0.75rem;">
-            <span class="stat-label"><span class="math-symbol">lim</span> Budget Cap</span>
-            <span class="math-calc-tag">B_max</span>
+            <span class="stat-label">Budget</span>
+            <div class="stat-icon" style="background:#dbeafe;">🎯</div>
         </div>
         {% if summary.budget %}
             <div class="stat-value amount">{{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.budget) }}</div>
             {% if summary.budget_pct is not none %}
-                <div class="stat-sub flex items-center justify-between">
+                <div class="stat-sub">
                     {% if summary.budget_pct >= 100 %}
-                        <span class="text-danger font-medium">{{ summary.budget_pct }}% &bull; Over limit</span>
+                        <span class="text-danger font-medium">{{ summary.budget_pct }}% &bull; Over budget</span>
                     {% elif summary.budget_pct >= 90 %}
                         <span class="text-warning font-medium">{{ summary.budget_pct }}% used</span>
                     {% else %}
                         <span class="text-success font-medium">{{ summary.budget_pct }}% used</span>
                     {% endif %}
-                    <span class="text-xs text-muted font-mono">Σ/B</span>
                 </div>
             {% endif %}
         {% else %}
             <div class="stat-value text-muted" style="font-size:1.125rem;">Not set</div>
-            <div class="stat-sub"><a href="{{ url_for('budgets.index') }}">Define budget &rarr;</a></div>
+            <div class="stat-sub"><a href="{{ url_for('budgets.index') }}">Set budget &rarr;</a></div>
         {% endif %}
     </div>
 
     <!-- Remaining -->
     <div class="stat-card">
         <div class="flex items-center justify-between" style="margin-bottom:0.75rem;">
-            <span class="stat-label"><span class="math-symbol">&Delta;</span> Remaining</span>
-            <span class="math-calc-tag">B - &Sigma;</span>
+            <span class="stat-label">Remaining</span>
+            <div class="stat-icon" style="background:#d1fae5;">💰</div>
         </div>
         {% if summary.remaining is not none %}
             <div class="stat-value amount {% if summary.remaining < 0 %}text-danger{% else %}text-success{% endif %}">
                 {{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.remaining|abs) }}
-                {% if summary.remaining < 0 %}<span style="font-size:0.875rem;"> &Delta;&lt;0</span>{% endif %}
+                {% if summary.remaining < 0 %}<span style="font-size:0.875rem;"> over</span>{% endif %}
             </div>
-            <div class="stat-sub flex items-center justify-between">
-                <span>{% if summary.remaining >= 0 %}Surplus balance{% else %}Deficit overrun{% endif %}</span>
-                <span class="text-xs text-muted font-mono">margin</span>
+            <div class="stat-sub">
+                {% if summary.remaining >= 0 %}Left this month{% else %}Over budget{% endif %}
             </div>
         {% else %}
-            <div class="stat-value text-muted" style="font-size:1.125rem;">&infin;</div>
-            <div class="stat-sub text-muted">No ceiling defined</div>
+            <div class="stat-value text-muted" style="font-size:1.125rem;">—</div>
+            <div class="stat-sub text-muted">No budget set</div>
         {% endif %}
     </div>
 
     <!-- Transactions -->
     <div class="stat-card">
         <div class="flex items-center justify-between" style="margin-bottom:0.75rem;">
-            <span class="stat-label"><span class="math-symbol">n</span> Observations</span>
-            <span class="math-calc-tag">&xbar; mean</span>
+            <span class="stat-label">Transactions</span>
+            <div class="stat-icon" style="background:#ede9fe;">📋</div>
         </div>
         <div class="stat-value">{{ summary.count }}</div>
-        <div class="stat-sub flex items-center justify-between">
-            <span>&xbar; = {{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.avg_daily) }}/day</span>
-            <span class="text-xs text-muted font-mono">&Sigma;/n</span>
+        <div class="stat-sub">
+            Avg {{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.avg_daily) }}/day
         </div>
     </div>
 </div>
@@ -147,11 +140,8 @@
     <!-- Spending trend line chart -->
     <div class="card">
         <div class="card-header">
-            <div class="flex items-center gap-2">
-                <h3 style="font-size:1rem;margin:0;">📈 Temporal Trend &bull; f(t)</h3>
-                <span class="math-calc-tag">Daily Σ</span>
-            </div>
-            <span class="text-sm text-muted font-mono">{{ summary.month_name }} timeline</span>
+            <h3 style="font-size:1rem;margin:0;">📈 Spending Trend</h3>
+            <span class="text-sm text-muted">{{ summary.month_name }} daily</span>
         </div>
         <div class="card-body">
             <div class="chart-container">
@@ -163,10 +153,8 @@
     <!-- Category doughnut chart -->
     <div class="card">
         <div class="card-header">
-            <div class="flex items-center gap-2">
-                <h3 style="font-size:1rem;margin:0;">🎯 Category Distribution &bull; P(C)</h3>
-            </div>
-            <span class="text-sm text-muted font-mono">{{ summary.month_name }}</span>
+            <h3 style="font-size:1rem;margin:0;">🎯 Spending by Category</h3>
+            <span class="text-sm text-muted">{{ summary.month_name }}</span>
         </div>
         <div class="card-body">
             <div class="chart-container chart-sm">

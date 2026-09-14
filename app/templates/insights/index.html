@@ -6,48 +6,34 @@
 {% block content %}
 <div style="max-width:900px;">
 
-<div class="flex items-center justify-between" style="margin-bottom:1.25rem;">
-    <div>
-        <p class="text-muted text-sm">
-            Statistical inferences &bull; Deterministic computations &bull; Zero external AI
-        </p>
-    </div>
-    <span class="math-badge">
-        <span class="math-symbol">&Delta;%</span> Formula: &Delta; = ((x_t &minus; x_{t-1}) / x_{t-1}) &times; 100
-    </span>
-</div>
+<p class="text-muted text-sm" style="margin-bottom:1.5rem;">
+    Personalized spending observations calculated from your real transactions.
+</p>
 
 {# ---- Month comparison header cards ---- #}
 <div class="grid-3 mb-6">
     <div class="stat-card">
-        <div class="stat-label"><span class="math-symbol">&Sigma;</span> Period t (Current)</div>
+        <div class="stat-label">This Month</div>
         <div class="stat-value amount" style="color:var(--primary);">{{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.total) }}</div>
-        <div class="stat-sub flex justify-between">
-            <span>{{ summary.month_name }} {{ summary.year }}</span>
-            <span class="text-xs text-muted font-mono">&Sigma;x_i</span>
-        </div>
+        <div class="stat-sub">{{ summary.month_name }} {{ summary.year }}</div>
     </div>
     <div class="stat-card">
-        <div class="stat-label"><span class="math-symbol">&Sigma;</span> Period t-1 (Prior)</div>
+        <div class="stat-label">Previous Month</div>
         <div class="stat-value amount">{{ current_user.currency_symbol }}{{ "{:,.0f}".format(comparison.previous_total) }}</div>
-        <div class="stat-sub flex justify-between">
-            <span>{{ comparison.prev_month_name }}</span>
-            <span class="text-xs text-muted font-mono">baseline</span>
-        </div>
+        <div class="stat-sub">{{ comparison.prev_month_name }}</div>
     </div>
     <div class="stat-card">
-        <div class="stat-label"><span class="math-symbol">&Delta;%</span> Variance Rate</div>
+        <div class="stat-label">Monthly Change</div>
         {% if comparison.change_pct is not none %}
             <div class="stat-value {% if comparison.increased %}text-danger{% else %}text-success{% endif %}">
                 {{ '+' if comparison.increased else '−' }}{{ comparison.change_pct|abs }}%
             </div>
-            <div class="stat-sub flex justify-between">
-                <span>{% if comparison.increased %}Expenditure expansion{% else %}Expenditure contraction{% endif %}</span>
-                <span class="text-xs text-muted font-mono">&Delta;%</span>
+            <div class="stat-sub">
+                {% if comparison.increased %}Spending increased{% else %}Spending decreased{% endif %}
             </div>
         {% else %}
             <div class="stat-value text-muted">—</div>
-            <div class="stat-sub">Baseline pending</div>
+            <div class="stat-sub">Not enough data yet</div>
         {% endif %}
     </div>
 </div>

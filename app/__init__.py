@@ -79,4 +79,8 @@ def create_app(config_name: str = None) -> Flask:
     # --- Import models so Flask-Migrate can detect them ---
     from app.models import user, expense, category, budget, recurring, receipt  # noqa: F401
 
+    # Ensure tables exist (especially in development / SQLite)
+    with app.app_context():
+        db.create_all()
+
     return app
