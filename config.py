@@ -63,9 +63,21 @@ class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "")
 
 
+class TestingConfig(Config):
+    """Testing: in-memory database, no CSRF, isolated uploads."""
+    TESTING = True
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    WTF_CSRF_ENABLED = False
+    SECRET_KEY = "test-secret-key"
+    UPLOAD_FOLDER = "/tmp/spendwise_test_uploads"
+    SESSION_COOKIE_SECURE = False
+
+
 # Map string names to config classes
 config = {
     "development": DevelopmentConfig,
     "production": ProductionConfig,
+    "testing": TestingConfig,
     "default": DevelopmentConfig,
 }

@@ -15,16 +15,10 @@ from app.models.category import Category, DEFAULT_CATEGORIES
 def app():
     """
     Create a Flask app configured for testing.
-    Uses an in-memory SQLite database so tests are fast and isolated.
+    Uses an in-memory SQLite database so tests are fast, isolated,
+    and NEVER touch or drop the development database in instance/spendwise.db.
     """
-    test_app = create_app("development")
-    test_app.config.update({
-        "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "WTF_CSRF_ENABLED": False,     # Disable CSRF in tests (easier to POST)
-        "SECRET_KEY": "test-secret-key",
-        "UPLOAD_FOLDER": "/tmp/spendwise_test_uploads",
-    })
+    test_app = create_app("testing")
 
     with test_app.app_context():
         _db.create_all()
