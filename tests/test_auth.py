@@ -37,6 +37,23 @@ class TestRegistration:
             assert user.password_hash != "securepass123"
             assert user.check_password("securepass123")
 
+    def test_register_with_custom_currency(self, client, app):
+        """User can choose their preferred currency upon registration."""
+        resp = client.post("/auth/register", data={
+            "name": "Dollar User",
+            "email": "dollar@example.com",
+            "password": "securepass123",
+            "confirm_password": "securepass123",
+            "currency": "USD",
+        }, follow_redirects=True)
+        assert resp.status_code == 200
+
+        with app.app_context():
+            user = User.query.filter_by(email="dollar@example.com").first()
+            assert user is not None
+            assert user.currency == "USD"
+            assert user.currency_symbol == "$"
+
     def test_register_duplicate_email(self, client, app):
         """Registering with an email that already exists is rejected."""
         data = {

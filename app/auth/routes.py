@@ -41,6 +41,9 @@ def register():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
         confirm = request.form.get("confirm_password", "")
+        currency = request.form.get("currency", "INR").strip().upper()
+        if currency not in User.SUPPORTED_CURRENCIES:
+            currency = "INR"
 
         errors = []
 
@@ -64,10 +67,10 @@ def register():
             for error in errors:
                 flash(error, "danger")
             # Re-render form with values preserved (except passwords)
-            return render_template("auth/register.html", name=name, email=email)
+            return render_template("auth/register.html", name=name, email=email, currency=currency)
 
         # All valid — create the user
-        user = User(name=name, email=email, currency="INR", theme="dark")
+        user = User(name=name, email=email, currency=currency, theme="dark")
         user.set_password(password)
 
         db.session.add(user)
@@ -77,7 +80,7 @@ def register():
         flash(f"Welcome to SpendWise, {user.name}! Start by adding your first expense.", "success")
         return redirect(url_for("dashboard.index"))
 
-    return render_template("auth/register.html", name="", email="")
+    return render_template("auth/register.html", name="", email="", currency="INR")
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])

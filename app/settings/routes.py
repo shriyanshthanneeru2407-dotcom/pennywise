@@ -19,7 +19,7 @@ from app.services.export_service import generate_expenses_csv
 
 settings_bp = Blueprint("settings", __name__)
 
-SUPPORTED_CURRENCIES = ["INR", "USD", "EUR", "GBP"]
+SUPPORTED_CURRENCIES = ["INR", "USD", "EUR", "GBP", "CAD", "AUD", "JPY"]
 SUPPORTED_THEMES = ["light", "dark"]
 DATE_FORMATS = ["%d %b %Y", "%Y-%m-%d", "%m/%d/%Y", "%d/%m/%Y"]
 

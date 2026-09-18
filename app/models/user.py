@@ -58,11 +58,20 @@ class User(UserMixin, db.Model):
 
     # --- Display helpers ---
 
+    SUPPORTED_CURRENCIES = {
+        "INR": "₹",
+        "USD": "$",
+        "EUR": "€",
+        "GBP": "£",
+        "CAD": "CA$",
+        "AUD": "A$",
+        "JPY": "¥",
+    }
+
     @property
     def currency_symbol(self) -> str:
         """Return the currency symbol for the user's selected currency."""
-        symbols = {"INR": "₹", "USD": "$", "EUR": "€", "GBP": "£"}
-        return symbols.get(self.currency, self.currency)
+        return self.SUPPORTED_CURRENCIES.get(self.currency, self.currency)
 
     def format_amount(self, amount) -> str:
         """Format a decimal amount with the user's currency symbol."""
