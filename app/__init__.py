@@ -39,9 +39,16 @@ def create_app(config_name: str = None) -> Flask:
     env = config_name or os.environ.get("FLASK_ENV", "development")
     app.config.from_object(config_map.get(env, config_map["default"]))
 
-    # Ensure the instance folder exists (for SQLite + local uploads)
-    os.makedirs(app.instance_path, exist_ok=True)
-    os.makedirs(app.config.get("UPLOAD_FOLDER", "instance/uploads"), exist_ok=True)
+    # Ensure the instance and upload folders exist (safely catch Read-only filesystem on serverless)
+    try:
+        os.makedirs(app.instance_path, exist_ok=True)
+    except OSError:
+        pass
+
+    try:
+        os.makedirs(app.config.get("UPLOAD_FOLDER", "/tmp/spendwise_uploads"), exist_ok=True)
+    except OSError:
+        pass
 
     # --- Bind extensions to app ---
     db.init_app(app)
@@ -79,8 +86,34 @@ def create_app(config_name: str = None) -> Flask:
     # --- Import models so Flask-Migrate can detect them ---
     from app.models import user, expense, category, budget, recurring, receipt  # noqa: F401
 
-    # Ensure tables exist (especially in development / SQLite)
+    # Ensure tables and default data exist
     with app.app_context():
         db.create_all()
+
+        # Seed system categories if none exist
+        from app.models.category import Category, DEFAULT_CATEGORIES
+        try:
+            if not Category.query.filter_by(user_id=None).first():
+                for cat_data in DEFAULT_CATEGORIES:
+                    db.session.add(Category(user_id=None, **cat_data))
+                db.session.commit()
+        except Exception:
+            db.session.rollback()
+
+        # Seed demo user if none exists
+        from app.models.user import User
+        try:
+            if not User.query.filter_by(email="demo@spendwise.app").first():
+                demo_user = User(
+                    name="Demo User",
+                    email="demo@spendwise.app",
+                    currency="INR",
+                    theme="dark",
+                )
+                demo_user.set_password("demo1234")
+                db.session.add(demo_user)
+                db.session.commit()
+        except Exception:
+            db.session.rollback()
 
     return app

@@ -54,13 +54,16 @@ class DevelopmentConfig(Config):
 
 
 class ProductionConfig(Config):
-    """Production: no debug, PostgreSQL, secure cookies."""
+    """Production: no debug, PostgreSQL or serverless SQLite, secure cookies."""
     DEBUG = False
     SESSION_COOKIE_SECURE = True  # Require HTTPS
 
-    # Postgres DATABASE_URL from environment
-    # Vercel/Neon/Supabase etc. provide this automatically
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "")
+    # Postgres DATABASE_URL from environment or fallback to /tmp on serverless
+    _raw_db = os.environ.get("DATABASE_URL", "")
+    if _raw_db.startswith("postgres://"):
+        _raw_db = _raw_db.replace("postgres://", "postgresql://", 1)
+    SQLALCHEMY_DATABASE_URI = _raw_db or "sqlite:////tmp/spendwise.db"
+    UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", "/tmp/spendwise_uploads")
 
 
 class TestingConfig(Config):
