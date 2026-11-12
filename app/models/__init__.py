@@ -9,5 +9,6 @@ from .budget import Budget, CategoryBudget
 from .recurring import RecurringExpense
 from .receipt import Receipt
 from .savings import SavingsGoal, SavingsContribution
+from .notification import Notification
 
-__all__ = ["User", "Category", "Expense", "Budget", "CategoryBudget", "RecurringExpense", "Receipt", "SavingsGoal", "SavingsContribution"]
+__all__ = ["User", "Category", "Expense", "Budget", "CategoryBudget", "RecurringExpense", "Receipt", "SavingsGoal", "SavingsContribution", "Notification"]

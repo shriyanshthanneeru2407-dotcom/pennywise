@@ -48,6 +48,7 @@ class User(UserMixin, db.Model):
     categories = db.relationship("Category", backref="owner", lazy="dynamic", cascade="all, delete-orphan",
                                  foreign_keys="Category.user_id")
     savings_goals = db.relationship("SavingsGoal", backref="owner", lazy="dynamic", cascade="all, delete-orphan")
+    notifications = db.relationship("Notification", back_populates="user", lazy="dynamic", cascade="all, delete-orphan")
 
     # --- Password helpers ---
 

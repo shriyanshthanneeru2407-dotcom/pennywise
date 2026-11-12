@@ -104,6 +104,14 @@
 
         <div class="nav-section">
             <span class="nav-section-label">Account</span>
+            <a href="{{ url_for('notifications.index') }}"
+               class="nav-item {% if request.endpoint and request.endpoint.startswith('notifications') %}active{% endif %}">
+                <span class="nav-icon" aria-hidden="true">🔔</span>
+                Notifications
+                {% if unread_notifications_count and unread_notifications_count > 0 %}
+                    <span class="badge badge-success" style="margin-left: auto; font-size: 0.65rem; padding: 0.15rem 0.4rem; border-radius: 9999px;">{{ unread_notifications_count }}</span>
+                {% endif %}
+            </a>
             <a href="{{ url_for('settings.index') }}"
                class="nav-item {% if request.endpoint and request.endpoint.startswith('settings') %}active{% endif %}">
                 <span class="nav-icon" aria-hidden="true">⚙️</span>

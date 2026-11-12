@@ -74,6 +74,7 @@ def create_app(config_name: str = None) -> Flask:
     from app.insights.routes import insights_bp
     from app.reports.routes import reports_bp
     from app.settings.routes import settings_bp
+    from app.notifications.routes import notifications_bp
     from app.main.routes import main_bp
 
     app.register_blueprint(main_bp)
@@ -86,13 +87,26 @@ def create_app(config_name: str = None) -> Flask:
     app.register_blueprint(insights_bp, url_prefix="/insights")
     app.register_blueprint(reports_bp, url_prefix="/reports")
     app.register_blueprint(settings_bp, url_prefix="/settings")
+    app.register_blueprint(notifications_bp, url_prefix="/notifications")
+
+    @app.context_processor
+    def inject_notifications():
+        from flask_login import current_user
+        from app.models.notification import Notification
+        try:
+            if current_user and current_user.is_authenticated:
+                count = Notification.query.filter_by(user_id=current_user.id, is_read=False).count()
+                return {"unread_notifications_count": count}
+        except Exception:
+            pass
+        return {"unread_notifications_count": 0}
 
     # --- Register error handlers ---
     from app.errors import register_error_handlers
     register_error_handlers(app)
 
     # --- Import models so Flask-Migrate can detect them ---
-    from app.models import user, expense, category, budget, recurring, receipt, savings  # noqa: F401
+    from app.models import user, expense, category, budget, recurring, receipt, savings, notification  # noqa: F401
 
     # Ensure tables and default data exist (immediate for SQLite/testing; PostgreSQL tables are pre-created)
     with app.app_context():
