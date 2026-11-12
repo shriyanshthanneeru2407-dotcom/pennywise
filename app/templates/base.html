@@ -16,6 +16,14 @@
 
     <!-- Favicon using the uploaded logo -->
     <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='images/logo.jpg') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/logo.jpg') }}">
+
+    <!-- Mobile PWA and Web App Manifest -->
+    <meta name="theme-color" content="#040709">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PennyWise">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 
     {% block head %}{% endblock %}
 </head>

@@ -67,7 +67,13 @@
     <!-- Date range & amount range (collapsed row) -->
     <div class="filter-row" style="margin-top:0.75rem;">
         <div class="filter-group">
-            <label for="date_from">From Date</label>
+            <div class="flex items-center justify-between" style="margin-bottom:0.25rem;">
+                <label for="date_from" style="margin:0;">From Date</label>
+                <div class="flex gap-1">
+                    <button type="button" class="btn btn-ghost btn-xs" onclick="setPreset('this_month')" style="padding:1px 6px;font-size:0.7rem;">This Month</button>
+                    <button type="button" class="btn btn-ghost btn-xs" onclick="setPreset('last_month')" style="padding:1px 6px;font-size:0.7rem;">Last Month</button>
+                </div>
+            </div>
             <input type="date" id="date_from" name="date_from" class="form-control" value="{{ date_from }}">
         </div>
         <div class="filter-group">
@@ -271,4 +277,25 @@
 </nav>
 {% endif %}
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+function setPreset(preset) {
+    const fromInput = document.getElementById('date_from');
+    const toInput = document.getElementById('date_to');
+    const now = new Date();
+    if (preset === 'this_month') {
+        const first = new Date(now.getFullYear(), now.getMonth(), 1);
+        const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        fromInput.value = first.toLocaleDateString('en-CA');
+        toInput.value = last.toLocaleDateString('en-CA');
+    } else if (preset === 'last_month') {
+        const first = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const last = new Date(now.getFullYear(), now.getMonth(), 0);
+        fromInput.value = first.toLocaleDateString('en-CA');
+        toInput.value = last.toLocaleDateString('en-CA');
+    }
+}
+</script>
 {% endblock %}

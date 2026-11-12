@@ -1,0 +1,24 @@
+{
+  "name": "PennyWise – Smart Personal Finance",
+  "short_name": "PennyWise",
+  "description": "Smart personal finance and wealth tracker with two-way cash flow, savings vault, and threshold budget alerts.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#040709",
+  "theme_color": "#040709",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/images/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
