@@ -249,13 +249,13 @@ def get_monthly_comparison(user_id: int) -> dict:
     }
 
 
-def get_last_6_months_totals(user_id: int) -> list:
+def get_last_6_months_totals(user_id: int, count: int = 6) -> list:
     """
-    Return monthly totals for the last 6 months (for bar chart comparison).
+    Return monthly totals for the last N months (for bar chart comparison).
     """
     today = date.today()
     results = []
-    for i in range(5, -1, -1):
+    for i in range(count - 1, -1, -1):
         # Walk backwards from current month
         month = today.month - i
         year = today.year

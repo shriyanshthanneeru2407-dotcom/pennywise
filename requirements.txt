@@ -36,3 +36,6 @@ pytest-flask==1.3.0
 
 # WSGI server for production
 gunicorn==23.0.0
+
+# Penny AI chatbot — Google Generative AI
+google-generativeai>=0.8.0

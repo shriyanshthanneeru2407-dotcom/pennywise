@@ -289,18 +289,24 @@
         }
     }
 
-    async function initMonthlyBarChart() {
+    let monthlyBarChartInstance = null;
+
+    async function initMonthlyBarChart(months = 6) {
         const canvas = document.getElementById("monthlyBarChart");
         if (!canvas) return;
 
         try {
-            const res = await fetch("/dashboard/api/monthly-comparison");
+            const res = await fetch(`/dashboard/api/monthly-comparison?months=${months}`);
             if (!res.ok) throw new Error("Failed to load");
             const data = await res.json();
 
             const primaryColor = getCssVar("--primary");
 
-            new Chart(canvas, {
+            if (monthlyBarChartInstance) {
+                monthlyBarChartInstance.destroy();
+            }
+
+            monthlyBarChartInstance = new Chart(canvas, {
                 type: "bar",
                 data: {
                     labels: data.labels,
@@ -334,6 +340,20 @@
             console.error("Monthly bar chart error:", err);
         }
     }
+
+    window.updateChartTimeframe = function (months, btn) {
+        document.querySelectorAll(".timeframe-btn").forEach((b) => {
+            b.className = "btn btn-ghost btn-xs timeframe-btn";
+            b.style.background = "";
+            b.style.color = "";
+        });
+        if (btn) {
+            btn.className = "btn btn-secondary btn-xs timeframe-btn active";
+            btn.style.background = "var(--primary)";
+            btn.style.color = "var(--primary-text)";
+        }
+        initMonthlyBarChart(months);
+    };
 
     // ---- Show empty state inside a chart canvas ----
     function showEmptyState(canvas, message) {

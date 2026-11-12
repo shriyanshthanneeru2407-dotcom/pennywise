@@ -11,7 +11,7 @@ All data is filtered by current_user.id — never expose another user's data.
 
 from datetime import date
 
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template, jsonify, request
 from flask_login import login_required, current_user
 
 from app.models.expense import Expense
@@ -131,15 +131,12 @@ def api_daily_spending():
 @login_required
 def api_monthly_comparison():
     """
-    Returns 6-month spending history for the bar chart.
-
-    Response format:
-        {
-            "labels": ["Apr 2026", ..., "Sep 2026"],
-            "data": [32000.0, ..., 42350.0]
-        }
+    Returns N-month spending history for the bar chart.
+    Supports ?months=3|6|12 query parameter.
     """
-    months = analytics.get_last_6_months_totals(current_user.id)
+    count = request.args.get("months", 6, type=int)
+    count = min(max(count, 3), 12)
+    months = analytics.get_last_6_months_totals(current_user.id, count=count)
 
     return jsonify({
         "labels": [m["label"] for m in months],

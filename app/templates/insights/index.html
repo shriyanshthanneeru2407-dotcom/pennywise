@@ -104,8 +104,13 @@
     </div>
 
     <div class="card">
-        <div class="card-header">
-            <h3 style="font-size:1rem;margin:0;">📅 6-Month Trend</h3>
+        <div class="card-header flex justify-between items-center">
+            <h3 style="font-size:1rem;margin:0;">📅 Spending Trend</h3>
+            <div class="flex gap-1" id="timeframeBtnGroup">
+                <button type="button" class="btn btn-ghost btn-xs timeframe-btn" onclick="updateChartTimeframe(3, this)" style="padding:2px 7px;font-size:0.75rem;">3M</button>
+                <button type="button" class="btn btn-secondary btn-xs timeframe-btn active" onclick="updateChartTimeframe(6, this)" style="padding:2px 7px;font-size:0.75rem;background:var(--primary);color:var(--primary-text);">6M</button>
+                <button type="button" class="btn btn-ghost btn-xs timeframe-btn" onclick="updateChartTimeframe(12, this)" style="padding:2px 7px;font-size:0.75rem;">12M</button>
+            </div>
         </div>
         <div class="card-body">
             <div class="chart-container chart-sm">
