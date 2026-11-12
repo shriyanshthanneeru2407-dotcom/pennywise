@@ -139,7 +139,7 @@ Visit `http://localhost:5001` in your browser.
 
 ## 🧪 Automated Testing Suite
 
-PennyWise features **74 automated tests** (63 unit/integration tests + 11 live production E2E user journey tests) covering authentication, database models, financial calculations, multi-user isolation, recurring subscriptions, notifications, and security vulnerabilities:
+PennyWise features **76 automated tests** (65 unit/integration tests + 11 live production E2E user journey tests) covering authentication, database models, financial calculations, multi-user isolation, recurring subscriptions, notifications, and security vulnerabilities:
 
 ```bash
 # 1. Run local test suite
@@ -148,7 +148,7 @@ pytest tests/ -v
 
 Output:
 ```
-============================== 63 passed in 6.41s ==============================
+============================== 65 passed in 6.62s ==============================
 ```
 
 ```bash
