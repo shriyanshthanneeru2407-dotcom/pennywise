@@ -26,9 +26,25 @@ def _normalize_db_url(raw_url: str) -> str:
     """Normalize database URL for SQLAlchemy, supporting both psycopg2 and pg8000."""
     if not raw_url:
         return ""
+
+    raw_url = raw_url.strip()
+
+    # Standardize postgres:// prefix
     if raw_url.startswith("postgres://"):
         raw_url = raw_url.replace("postgres://", "postgresql://", 1)
-    
+
+    # Safely handle special characters (e.g. '@' or accidental parentheses) in database passwords
+    if "://" in raw_url and "@" in raw_url:
+        import urllib.parse
+        prefix, rest = raw_url.split("://", 1)
+        auth_part, host_part = rest.rsplit("@", 1)
+        if ":" in auth_part:
+            user, pwd = auth_part.split(":", 1)
+            if pwd.startswith("(") and pwd.endswith(")"):
+                pwd = pwd[1:-1]
+            pwd_clean = urllib.parse.quote(urllib.parse.unquote(pwd))
+            raw_url = f"{prefix}://{user}:{pwd_clean}@{host_part}"
+
     if not HAS_PSYCOPG2 and raw_url.startswith("postgresql://") and not raw_url.startswith("postgresql+"):
         raw_url = raw_url.replace("postgresql://", "postgresql+pg8000://", 1)
 
