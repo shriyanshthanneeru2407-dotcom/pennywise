@@ -31,6 +31,11 @@ def _normalize_db_url(raw_url: str) -> str:
     
     if not HAS_PSYCOPG2 and raw_url.startswith("postgresql://") and not raw_url.startswith("postgresql+"):
         raw_url = raw_url.replace("postgresql://", "postgresql+pg8000://", 1)
+
+    if "pg8000" in raw_url:
+        raw_url = raw_url.replace("?sslmode=require", "").replace("&sslmode=require", "")
+        raw_url = raw_url.replace("?sslmode=disable", "").replace("&sslmode=disable", "")
+
     return raw_url
 
 
