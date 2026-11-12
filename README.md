@@ -66,7 +66,7 @@ pennywise/
 │   │   ├── css/style.css        # Premium Obsidian Matte + Neon Emerald design
 │   │   └── images/logo.jpg      # Animated branding
 │   └── templates/               # Jinja2 template hierarchy
-├── tests/                       # Automated pytest test suite (56 tests)
+├── tests/                       # Automated pytest test suite (60 tests)
 │   ├── conftest.py              # Test client, app context, database isolation
 │   ├── test_auth.py             # Auth, password reset, Google OAuth tests
 │   ├── test_budgets.py          # Monthly & category budget tests
