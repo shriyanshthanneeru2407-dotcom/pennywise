@@ -241,6 +241,110 @@
         }, 3500);
     };
 
+    // ---- Command Palette (Cmd+K / Ctrl+K) ----
+    function initCommandPalette() {
+        const overlay = document.getElementById("commandPaletteOverlay");
+        const btn = document.getElementById("commandPaletteBtn");
+        const input = document.getElementById("commandPaletteInput");
+        const list = document.getElementById("commandPaletteList");
+        const themeBtn = document.getElementById("cmdToggleTheme");
+
+        if (!overlay || !input || !list) return;
+
+        let selectedIndex = 0;
+
+        function openPalette() {
+            overlay.classList.add("open");
+            input.value = "";
+            filterItems("");
+            input.focus();
+        }
+
+        function closePalette() {
+            overlay.classList.remove("open");
+        }
+
+        function getVisibleItems() {
+            return Array.from(list.querySelectorAll(".command-palette-item")).filter(
+                (item) => item.parentElement.style.display !== "none"
+            );
+        }
+
+        function updateSelection(items) {
+            items.forEach((item, idx) => {
+                item.classList.toggle("selected", idx === selectedIndex);
+            });
+            if (items[selectedIndex]) {
+                items[selectedIndex].scrollIntoView({ block: "nearest" });
+            }
+        }
+
+        function filterItems(query) {
+            const q = query.trim().toLowerCase();
+            const allItems = list.querySelectorAll(".command-palette-item");
+            allItems.forEach((item) => {
+                const title = (item.dataset.title || item.textContent).toLowerCase();
+                const match = !q || title.includes(q);
+                item.parentElement.style.display = match ? "" : "none";
+            });
+            selectedIndex = 0;
+            updateSelection(getVisibleItems());
+        }
+
+        if (btn) btn.addEventListener("click", openPalette);
+
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) closePalette();
+        });
+
+        input.addEventListener("input", () => {
+            filterItems(input.value);
+        });
+
+        input.addEventListener("keydown", (e) => {
+            const visible = getVisibleItems();
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                if (visible.length > 0) {
+                    selectedIndex = (selectedIndex + 1) % visible.length;
+                    updateSelection(visible);
+                }
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                if (visible.length > 0) {
+                    selectedIndex = (selectedIndex - 1 + visible.length) % visible.length;
+                    updateSelection(visible);
+                }
+            } else if (e.key === "Enter") {
+                e.preventDefault();
+                if (visible[selectedIndex]) {
+                    visible[selectedIndex].click();
+                }
+            } else if (e.key === "Escape") {
+                e.preventDefault();
+                closePalette();
+            }
+        });
+
+        if (themeBtn) {
+            themeBtn.addEventListener("click", () => {
+                const toggle = document.getElementById("themeToggle");
+                if (toggle) toggle.click();
+                closePalette();
+            });
+        }
+
+        // Global hotkeys: Cmd+K / Ctrl+K
+        document.addEventListener("keydown", (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+                e.preventDefault();
+                overlay.classList.contains("open") ? closePalette() : openPalette();
+            } else if (e.key === "Escape" && overlay.classList.contains("open")) {
+                closePalette();
+            }
+        });
+    }
+
     // ---- Init all ----
     document.addEventListener("DOMContentLoaded", () => {
         initSidebar();
@@ -251,6 +355,7 @@
         initThemeToggle();
         initFileInputs();
         initAmountFormatting();
+        initCommandPalette();
 
         // Apply theme from body attribute (set by Jinja from user preference)
         const bodyTheme = document.body.dataset.theme;

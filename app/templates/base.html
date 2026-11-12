@@ -149,6 +149,12 @@
             <h1>{% block page_title %}Dashboard{% endblock %}</h1>
         </div>
         <div class="flex items-center gap-3">
+            <!-- Quick Command Palette Trigger (Cmd+K) -->
+            <button id="commandPaletteBtn" class="btn btn-ghost btn-sm hide-mobile" aria-label="Command Palette" title="Quick Search & Navigation (⌘K / Ctrl+K)" style="display:inline-flex;align-items:center;gap:0.4rem;font-size:0.8rem;padding:0.35rem 0.65rem;border:1px solid var(--border);border-radius:6px;background:rgba(255,255,255,0.03);">
+                <span>🔍 Search</span>
+                <kbd style="background:rgba(255,255,255,0.1);padding:0.1rem 0.35rem;border-radius:4px;font-size:0.7rem;font-family:monospace;">⌘K</kbd>
+            </button>
+
             <!-- Theme toggle -->
             <button id="themeToggle" class="btn btn-ghost btn-sm" aria-label="Toggle dark mode" title="Toggle dark mode">
                 <span class="theme-icon">🌙</span>
@@ -272,6 +278,32 @@
 
 <!-- Toast container -->
 <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<!-- Fintech Command Palette Modal (Cmd+K / Ctrl+K) -->
+<div class="command-palette-overlay" id="commandPaletteOverlay" role="dialog" aria-modal="true" aria-label="Command Palette">
+    <div class="command-palette">
+        <div class="command-palette-header">
+            <span>🔍</span>
+            <input type="text" id="commandPaletteInput" class="command-palette-input" placeholder="Type a command or jump to page... (ESC to close)" autocomplete="off">
+        </div>
+        <ul class="command-palette-list" id="commandPaletteList">
+            <li><a href="{{ url_for('expenses.new') }}" class="command-palette-item" data-title="Add Transaction New Expense Income"><span>➕ Add Transaction</span> <kbd class="text-xs text-muted">N</kbd></a></li>
+            <li><a href="{{ url_for('dashboard.index') }}" class="command-palette-item" data-title="Dashboard Overview Home"><span>🏠 Dashboard</span> <kbd class="text-xs text-muted">D</kbd></a></li>
+            <li><a href="{{ url_for('expenses.index') }}" class="command-palette-item" data-title="Transactions Expenses Income Ledger"><span>💳 All Transactions</span> <kbd class="text-xs text-muted">T</kbd></a></li>
+            <li><a href="{{ url_for('budgets.index') }}" class="command-palette-item" data-title="Budgets Monthly Limits"><span>🎯 Budgets</span> <kbd class="text-xs text-muted">B</kbd></a></li>
+            <li><a href="{{ url_for('savings.index') }}" class="command-palette-item" data-title="Savings Goals Vault Targets"><span>🏦 Savings Goals Vault</span> <kbd class="text-xs text-muted">S</kbd></a></li>
+            <li><a href="{{ url_for('recurring.index') }}" class="command-palette-item" data-title="Recurring Subscriptions Bills"><span>🔄 Recurring Bills</span> <kbd class="text-xs text-muted">R</kbd></a></li>
+            <li><a href="{{ url_for('insights.index') }}" class="command-palette-item" data-title="Spending Insights Analytics Velocity"><span>📊 Spending Insights</span> <kbd class="text-xs text-muted">I</kbd></a></li>
+            <li><a href="{{ url_for('reports.index') }}" class="command-palette-item" data-title="Reports Export CSV Print Annual Matrix"><span>📑 Financial Reports</span> <kbd class="text-xs text-muted">P</kbd></a></li>
+            <li><a href="{{ url_for('settings.index') }}" class="command-palette-item" data-title="Settings Currency Preferences Account"><span>⚙️ Settings & Currency</span> <kbd class="text-xs text-muted">,</kbd></a></li>
+            <li><div class="command-palette-item" id="cmdToggleTheme" data-title="Toggle Dark Light Mode Theme"><span>🌓 Toggle Theme</span> <kbd class="text-xs text-muted">U</kbd></div></li>
+        </ul>
+        <div class="command-palette-footer">
+            <span>Navigate: <kbd>↑</kbd> <kbd>↓</kbd> &nbsp; Select: <kbd>↵</kbd> &nbsp; Close: <kbd>ESC</kbd></span>
+            <span>PennyWise Smart Command</span>
+        </div>
+    </div>
+</div>
 
 <!-- Scripts -->
 <script>
