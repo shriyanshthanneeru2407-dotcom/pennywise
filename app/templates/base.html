@@ -298,6 +298,7 @@
             <input type="text" id="commandPaletteInput" class="command-palette-input" placeholder="Type a command or jump to page... (ESC to close)" autocomplete="off">
         </div>
         <ul class="command-palette-list" id="commandPaletteList">
+            <li><a href="{{ url_for('penny.index') }}" class="command-palette-item" data-title="Ask Penny AI Assistant Chat Financial Insights Advisor"><span>✨ Ask Penny (AI)</span> <kbd class="text-xs text-muted">A</kbd></a></li>
             <li><a href="{{ url_for('expenses.new') }}" class="command-palette-item" data-title="Add Transaction New Expense Income"><span>➕ Add Transaction</span> <kbd class="text-xs text-muted">N</kbd></a></li>
             <li><a href="{{ url_for('dashboard.index') }}" class="command-palette-item" data-title="Dashboard Overview Home"><span>🏠 Dashboard</span> <kbd class="text-xs text-muted">D</kbd></a></li>
             <li><a href="{{ url_for('expenses.index') }}" class="command-palette-item" data-title="Transactions Expenses Income Ledger"><span>💳 All Transactions</span> <kbd class="text-xs text-muted">T</kbd></a></li>

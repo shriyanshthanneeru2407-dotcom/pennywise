@@ -285,6 +285,7 @@ def new():
                 payment_methods=PAYMENT_METHODS,
                 form_data=request.form,
                 action="Add",
+                today=date.today(),
             )
 
         # Create expense
@@ -353,6 +354,7 @@ def new():
         payment_methods=PAYMENT_METHODS,
         form_data={"expense_date": date.today().isoformat()},
         action="Add",
+        today=date.today(),
     )
 
 
@@ -403,6 +405,7 @@ def edit(expense_id):
                 form_data=request.form,
                 expense=expense,
                 action="Edit",
+                today=date.today(),
             )
 
         # Update expense fields
@@ -452,6 +455,7 @@ def edit(expense_id):
         },
         expense=expense,
         action="Edit",
+        today=date.today(),
     )
 
 
