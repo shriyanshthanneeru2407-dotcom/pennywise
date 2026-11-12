@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}{{ action }} Expense{% endblock %}
-{% block page_title %}{{ action }} Expense{% endblock %}
+{% block title %}{{ action }} Transaction — PennyWise{% endblock %}
+{% block page_title %}{{ action }} Transaction{% endblock %}
 
 {% block content %}
 <div style="max-width:640px;margin:0 auto;">
     <div class="card">
         <div class="card-header">
             <h3 style="font-size:1rem;margin:0;">
-                {{ '✏️ Edit Expense' if action == 'Edit' else '➕ Add Expense' }}
+                {{ '✏️ Edit Transaction' if action == 'Edit' else '➕ Add Transaction' }}
             </h3>
             <a href="{{ url_for('expenses.index') }}" class="btn btn-ghost btn-sm">Cancel</a>
         </div>
