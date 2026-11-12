@@ -196,6 +196,31 @@ class TestReceiptModel:
 
             assert db.session.get(Receipt, rcpt.id) is None
 
+    def test_allowed_file_validation(self):
+        """Verify storage service validates safe MIME types and extensions against attacks."""
+        from app.services import storage_service
+
+        # Valid uploads
+        assert storage_service.allowed_file("receipt.jpg", "image/jpeg") is True
+        assert storage_service.allowed_file("invoice.pdf", "application/pdf") is True
+        assert storage_service.allowed_file("photo.PNG", "image/png") is True
+
+        # Malicious / disallowed uploads
+        assert storage_service.allowed_file("malicious.exe", "application/x-msdownload") is False
+        assert storage_service.allowed_file("script.py", "text/x-python") is False
+        assert storage_service.allowed_file("fake.jpg", "text/html") is False
+        assert storage_service.allowed_file("no_extension", "image/jpeg") is False
+
+    def test_storage_key_generation_prevents_traversal(self):
+        """Verify generated storage keys are UUID-based and prevent path traversal."""
+        from app.services import storage_service
+
+        key = storage_service._generate_storage_key("../../../etc/passwd.jpg")
+        assert key.startswith("receipts/")
+        assert key.endswith(".jpg")
+        assert ".." not in key
+        assert "/" not in key.replace("receipts/", "")
+
 
 class TestCustomCategoryEndpoints:
     def test_create_and_delete_custom_category(self, client, app):
