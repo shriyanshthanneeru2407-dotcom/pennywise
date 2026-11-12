@@ -151,6 +151,20 @@ def login():
     )
 
 
+def _get_redirect_uri() -> str:
+    """
+    Get the canonical OAuth redirect URI.
+    On localhost, uses current host.
+    In production on Vercel, uses canonical domain to match Google Console exactly.
+    """
+    import os
+    host = request.host.lower()
+    if host.startswith("localhost") or host.startswith("127.0.0.1"):
+        return f"http://{request.host}/auth/google/callback"
+    canonical = os.environ.get("APP_URL", "https://spendwise-sand-xi.vercel.app").rstrip("/")
+    return f"{canonical}/auth/google/callback"
+
+
 @auth_bp.route("/google")
 def google_login():
     """
@@ -169,11 +183,7 @@ def google_login():
         return redirect(url_for("auth.login"))
 
     # Build callback URL
-    redirect_uri = url_for("auth.google_callback", _external=True)
-    # Fix for behind reverse proxies or cloud run
-    if redirect_uri.startswith("http://") and not current_app.debug:
-        redirect_uri = redirect_uri.replace("http://", "https://", 1)
-
+    redirect_uri = _get_redirect_uri()
     auth_url = get_google_auth_url(redirect_uri)
     return redirect(auth_url)
 
@@ -199,9 +209,7 @@ def google_callback():
         flash("Google authorization was cancelled or failed.", "warning")
         return redirect(url_for("auth.login"))
 
-    redirect_uri = url_for("auth.google_callback", _external=True)
-    if redirect_uri.startswith("http://") and not current_app.debug:
-        redirect_uri = redirect_uri.replace("http://", "https://", 1)
+    redirect_uri = _get_redirect_uri()
 
     try:
         profile = exchange_code_for_user_info(code, redirect_uri)
