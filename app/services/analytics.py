@@ -131,11 +131,12 @@ def get_monthly_summary(user_id: int, year: int, month: int) -> dict:
 
 def get_category_totals(user_id: int, year: int, month: int) -> list:
     """
-    Return a list of dicts: {name, icon, color, total, pct} for each
+    Return a list of dicts: {id, name, icon, color, total, pct} for each
     category that has spending in the given month, sorted by total desc.
     """
     rows = (
         db.session.query(
+            Category.id,
             Category.name,
             Category.icon,
             Category.color,
@@ -160,6 +161,7 @@ def get_category_totals(user_id: int, year: int, month: int) -> list:
         total = Decimal(str(row.total))
         pct = float((_safe_divide(total, grand_total) * 100).quantize(Decimal("0.1")))
         result.append({
+            "id": row.id,
             "name": row.name,
             "icon": row.icon,
             "color": row.color,
