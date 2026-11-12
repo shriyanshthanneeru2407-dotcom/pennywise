@@ -24,7 +24,9 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(254), unique=True, nullable=False, index=True)
-    password_hash = db.Column(db.String(255), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=True)
+    google_id = db.Column(db.String(100), unique=True, nullable=True, index=True)
+    avatar_url = db.Column(db.String(255), nullable=True)
 
     # User preferences
     currency = db.Column(db.String(3), nullable=False, default="INR")
@@ -45,6 +47,7 @@ class User(UserMixin, db.Model):
     recurring_expenses = db.relationship("RecurringExpense", backref="owner", lazy="dynamic", cascade="all, delete-orphan")
     categories = db.relationship("Category", backref="owner", lazy="dynamic", cascade="all, delete-orphan",
                                  foreign_keys="Category.user_id")
+    savings_goals = db.relationship("SavingsGoal", backref="owner", lazy="dynamic", cascade="all, delete-orphan")
 
     # --- Password helpers ---
 
@@ -66,6 +69,9 @@ class User(UserMixin, db.Model):
         "CAD": "CA$",
         "AUD": "A$",
         "JPY": "¥",
+        "AED": "د.إ",
+        "SGD": "S$",
+        "CHF": "CHF",
     }
 
     @property

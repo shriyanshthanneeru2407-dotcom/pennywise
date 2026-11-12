@@ -17,6 +17,7 @@ from flask_login import login_required, current_user
 
 from app.models.expense import Expense
 from app.models.recurring import RecurringExpense
+from app.models.savings import SavingsGoal
 from app.services import analytics
 
 dashboard_bp = Blueprint("dashboard", __name__)
@@ -57,6 +58,15 @@ def index():
         .all()
     )
 
+    # Savings goals
+    savings_goals = (
+        SavingsGoal.query
+        .filter_by(user_id=current_user.id, status="active")
+        .order_by(SavingsGoal.created_at.desc())
+        .limit(3)
+        .all()
+    )
+
     return render_template(
         "dashboard/index.html",
         summary=summary,
@@ -64,6 +74,7 @@ def index():
         recent=recent,
         highest=highest,
         upcoming_recurring=upcoming_recurring,
+        savings_goals=savings_goals,
         today=today,
     )
 

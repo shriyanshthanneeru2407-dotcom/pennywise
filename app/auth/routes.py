@@ -77,7 +77,7 @@ def register():
         db.session.commit()
 
         login_user(user)
-        flash(f"Welcome to SpendWise, {user.name}! Start by adding your first expense.", "success")
+        flash(f"Welcome to PennyWise, {user.name}! Start by tracking your first transaction.", "success")
         return redirect(url_for("dashboard.index"))
 
     return render_template("auth/register.html", name="", email="", currency="INR")

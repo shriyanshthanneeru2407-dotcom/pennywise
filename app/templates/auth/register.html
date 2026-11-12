@@ -8,7 +8,7 @@
         <!-- Brand -->
         <div class="auth-brand">
             <div style="font-size:2rem;margin-bottom:0.5rem;">💰</div>
-            <div class="brand-name">SpendWise</div>
+            <div class="brand-name">PennyWise</div>
             <div class="brand-tagline">Create your free account</div>
         </div>
 
@@ -95,6 +95,9 @@
                     <option value="CAD" {% if currency == 'CAD' %}selected{% endif %}>CAD — Canadian Dollar (CA$)</option>
                     <option value="AUD" {% if currency == 'AUD' %}selected{% endif %}>AUD — Australian Dollar (A$)</option>
                     <option value="JPY" {% if currency == 'JPY' %}selected{% endif %}>JPY — Japanese Yen (¥)</option>
+                    <option value="AED" {% if currency == 'AED' %}selected{% endif %}>AED — UAE Dirham (د.إ)</option>
+                    <option value="SGD" {% if currency == 'SGD' %}selected{% endif %}>SGD — Singapore Dollar (S$)</option>
+                    <option value="CHF" {% if currency == 'CHF' %}selected{% endif %}>CHF — Swiss Franc (CHF)</option>
                 </select>
                 <div class="form-hint">You can change this anytime later in Settings.</div>
             </div>

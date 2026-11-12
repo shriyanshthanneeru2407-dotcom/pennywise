@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Annual Reports & Statements{% endblock %}
+{% block page_title %}Reports & Statements{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h2 style="font-size:1.25rem;margin-bottom:0.25rem;">📊 Financial Statements ({{ selected_year }})</h2>
+        <p class="text-muted text-sm">Comprehensive annual cash flow, category breakdowns, and exportable statements.</p>
+    </div>
+    <div class="flex items-center gap-2">
+        <a href="{{ url_for('reports.export_csv') }}" class="btn btn-outline-primary btn-sm">
+            📥 Export CSV
+        </a>
+        <button onclick="window.print()" class="btn btn-secondary btn-sm">
+            🖨️ Print
+        </button>
+    </div>
+</div>
+
+{# ---- Annual Summary Cards ---- #}
+<div class="dashboard-stats mb-6">
+    <div class="stat-card">
+        <div class="flex items-center justify-between" style="margin-bottom:0.75rem;">
+            <span class="stat-label">Annual Income</span>
+            <div class="stat-icon" style="background:rgba(0,230,118,0.15);color:var(--primary);">💵</div>
+        </div>
+        <div class="stat-value amount" style="color:var(--primary);text-shadow:0 0 10px rgba(0,230,118,0.3);">
+            {{ current_user.currency_symbol }}{{ "{:,.0f}".format(total_annual_income) }}
+        </div>
+        <div class="stat-sub text-success">Total cash inflow for {{ selected_year }}</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="flex items-center justify-between" style="margin-bottom:0.75rem;">
+            <span class="stat-label">Annual Expenses</span>
+            <div class="stat-icon" style="background:rgba(239,68,68,0.15);color:var(--danger);">💸</div>
+        </div>
+        <div class="stat-value amount" style="color:var(--danger);">
+            {{ current_user.currency_symbol }}{{ "{:,.0f}".format(total_annual_expense) }}
+        </div>
+        <div class="stat-sub text-muted">Total outflow for {{ selected_year }}</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="flex items-center justify-between" style="margin-bottom:0.75rem;">
+            <span class="stat-label">Net Annual Savings</span>
+            <div class="stat-icon" style="background:rgba(59,130,246,0.15);color:#60a5fa;">🏦</div>
+        </div>
+        <div class="stat-value amount {% if net_annual_balance >= 0 %}text-success{% else %}text-danger{% endif %}">
+            {{ '+' if net_annual_balance > 0 else '' }}{{ current_user.currency_symbol }}{{ "{:,.0f}".format(net_annual_balance) }}
+        </div>
+        <div class="stat-sub">
+            {% if annual_savings_rate is not none %}
+            <span class="text-success font-medium">{{ annual_savings_rate }}% average savings rate</span>
+            {% else %}
+            <span class="text-muted">Net cash flow</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{# ---- 12-Month Cash Flow Breakdown Table ---- #}
+<div class="card mb-6">
+    <div class="card-header">
+        <h3 style="font-size:1rem;margin:0;">12-Month Performance ({{ selected_year }})</h3>
+        <span class="text-xs text-muted">Chronological cash flow</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table" aria-label="12-Month Performance">
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th style="text-align:right;">Inflows</th>
+                    <th style="text-align:right;">Outflows</th>
+                    <th style="text-align:right;">Net Margin</th>
+                    <th style="text-align:right;">Entries</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in months_data %}
+                <tr>
+                    <td class="font-medium text-sm">{{ m.month_name }} {{ selected_year }}</td>
+                    <td style="text-align:right;" class="amount text-success">
+                        +{{ current_user.currency_symbol }}{{ "{:,.0f}".format(m.income) }}
+                    </td>
+                    <td style="text-align:right;" class="amount text-danger">
+                        −{{ current_user.currency_symbol }}{{ "{:,.0f}".format(m.expense) }}
+                    </td>
+                    <td style="text-align:right;" class="amount {% if m.balance >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        {{ '+' if m.balance > 0 else '' }}{{ current_user.currency_symbol }}{{ "{:,.0f}".format(m.balance) }}
+                    </td>
+                    <td style="text-align:right;" class="text-muted text-sm">
+                        {{ m.count }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{# ---- Category Distribution ---- #}
+{% if category_totals %}
+<div class="card">
+    <div class="card-header">
+        <h3 style="font-size:1rem;margin:0;">Category Outflows Summary</h3>
+    </div>
+    <div style="padding:1rem 1.5rem;display:flex;flex-direction:column;gap:0.75rem;">
+        {% for cat in category_totals %}
+        <div class="flex items-center justify-between" style="padding:0.75rem 1rem;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border);">
+            <div class="flex items-center gap-2">
+                <span style="font-size:1.25rem;">{{ cat.icon }}</span>
+                <span class="font-medium text-sm">{{ cat.name }}</span>
+            </div>
+            <span class="amount font-medium" style="color:var(--danger);">
+                {{ current_user.currency_symbol }}{{ "{:,.2f}".format(cat.total) }}
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

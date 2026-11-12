@@ -33,6 +33,7 @@ class Expense(db.Model):
     # Money: NUMERIC(12, 2) prevents floating-point errors
     amount = db.Column(db.Numeric(12, 2), nullable=False)
     currency = db.Column(db.String(3), nullable=False, default="INR")
+    transaction_type = db.Column(db.String(10), nullable=False, default="expense")  # 'expense' or 'income'
 
     description = db.Column(db.String(200), nullable=False)
     expense_date = db.Column(db.Date, nullable=False, index=True)

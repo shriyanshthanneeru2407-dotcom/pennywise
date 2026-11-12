@@ -29,6 +29,7 @@ from app.models.category import Category, DEFAULT_CATEGORIES
 from app.models.expense import Expense, PAYMENT_METHODS
 from app.models.budget import Budget
 from app.models.recurring import RecurringExpense
+from app.models.savings import SavingsGoal, SavingsContribution
 
 
 def seed():
@@ -50,13 +51,13 @@ def seed():
         print(f"     ✓ {len(DEFAULT_CATEGORIES)} categories ready")
 
         # --- 2. Create demo user ---
-        demo_email = "demo@spendwise.app"
+        demo_email = "demo@pennywise.app"
         user = User.query.filter_by(email=demo_email).first()
 
         if not user:
             print("  → Creating demo user...")
             user = User(
-                name="Demo User",
+                name="PennyWise Demo",
                 email=demo_email,
                 currency="INR",
                 theme="dark",
@@ -161,7 +162,36 @@ def seed():
         db.session.commit()
         print("     ✓ Sample expenses created")
 
-        # --- 5. Seed recurring expenses ---
+        # Seed income transactions
+        if "Salary" in cats:
+            add_expense("Monthly Tech Salary", "Salary", 85000, 2, "Bank Transfer", notes="Direct deposit")
+        if "Freelance" in cats:
+            add_expense("Web Design Project", "Freelance", 25000, 10, "Bank Transfer", notes="Client milestone 2")
+
+        # --- 5. Seed savings goals ---
+        print("  → Creating savings goals...")
+        if not SavingsGoal.query.filter_by(user_id=user.id).first():
+            g1 = SavingsGoal(
+                user_id=user.id,
+                title="🛡️ Emergency Vault",
+                target_amount=Decimal("100000.00"),
+                current_amount=Decimal("45000.00"),
+                category="Emergency Fund",
+                target_date=today + timedelta(days=180),
+            )
+            g2 = SavingsGoal(
+                user_id=user.id,
+                title="✈️ Japan Vacation",
+                target_amount=Decimal("150000.00"),
+                current_amount=Decimal("65000.00"),
+                category="Vacation",
+                target_date=today + timedelta(days=240),
+            )
+            db.session.add_all([g1, g2])
+            db.session.commit()
+            print("     ✓ Savings goals created")
+
+        # --- 6. Seed recurring expenses ---
         print("  → Creating recurring expenses...")
 
         def add_recurring(desc, cat_name, amount, frequency, days_until_due=28, payment="UPI"):

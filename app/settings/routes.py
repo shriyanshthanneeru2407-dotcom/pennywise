@@ -19,7 +19,7 @@ from app.services.export_service import generate_expenses_csv
 
 settings_bp = Blueprint("settings", __name__)
 
-SUPPORTED_CURRENCIES = ["INR", "USD", "EUR", "GBP", "CAD", "AUD", "JPY"]
+SUPPORTED_CURRENCIES = ["INR", "USD", "EUR", "GBP", "CAD", "AUD", "JPY", "AED", "SGD", "CHF"]
 SUPPORTED_THEMES = ["light", "dark"]
 DATE_FORMATS = ["%d %b %Y", "%Y-%m-%d", "%m/%d/%Y", "%d/%m/%Y"]
 
@@ -127,7 +127,7 @@ def export_expenses():
         csv_content,
         mimetype="text/csv",
         headers={
-            "Content-Disposition": "attachment; filename=spendwise-expenses.csv"
+            "Content-Disposition": "attachment; filename=pennywise-transactions.csv"
         },
     )
 

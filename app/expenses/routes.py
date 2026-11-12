@@ -73,6 +73,12 @@ def _validate_expense_form(form) -> tuple[dict, list]:
     errors = []
     data = {}
 
+    # Transaction type ('expense' or 'income')
+    tx_type = form.get("transaction_type", "expense").strip().lower()
+    if tx_type not in ("expense", "income"):
+        tx_type = "expense"
+    data["transaction_type"] = tx_type
+
     # Amount
     amount_str = form.get("amount", "").strip()
     try:
@@ -157,6 +163,10 @@ def index():
             )
         )
 
+    type_filter = request.args.get("type", "").strip()
+    if type_filter in ("income", "expense"):
+        query = query.filter(Expense.transaction_type == type_filter)
+
     cat_filter = request.args.get("category_id", "")
     if cat_filter:
         try:
@@ -221,6 +231,7 @@ def index():
         payment_methods=PAYMENT_METHODS,
         search=search,
         cat_filter=cat_filter,
+        type_filter=type_filter,
         payment_filter=payment_filter,
         date_from=date_from,
         date_to=date_to,

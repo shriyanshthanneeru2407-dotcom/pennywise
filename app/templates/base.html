@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="SpendWise — Track expenses, understand your spending, make smarter decisions.">
-    <title>{% block title %}SpendWise{% endblock %} — SpendWise</title>
+    <meta name="description" content="PennyWise — Smart Personal Finance & Expense Tracker.">
+    <title>{% block title %}PennyWise{% endblock %} — PennyWise</title>
 
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,9 +33,9 @@
 <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
     <!-- Brand with neon logo -->
     <div class="sidebar-brand">
-        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="SpendWise Logo" class="brand-logo-img logo-continuous-glow">
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="PennyWise Logo" class="brand-logo-img logo-continuous-glow">
         <a href="{{ url_for('dashboard.index') }}" class="brand-name" style="text-decoration:none;font-weight:800;letter-spacing:-0.02em;">
-            Spend<span style="color:var(--primary);text-shadow:0 0 10px rgba(0,230,118,0.5);">Wise</span>
+            Penny<span style="color:var(--primary);text-shadow:0 0 10px rgba(0,230,118,0.5);">Wise</span>
         </a>
     </div>
 
@@ -72,6 +72,11 @@
 
         <div class="nav-section">
             <span class="nav-section-label">Planning</span>
+            <a href="{{ url_for('savings.index') }}"
+               class="nav-item {% if request.endpoint and request.endpoint.startswith('savings') %}active{% endif %}">
+                <span class="nav-icon" aria-hidden="true">🏦</span>
+                Savings Goals
+            </a>
             <a href="{{ url_for('recurring.index') }}"
                class="nav-item {% if request.endpoint and request.endpoint.startswith('recurring') %}active{% endif %}">
                 <span class="nav-icon" aria-hidden="true">🔄</span>
@@ -81,6 +86,11 @@
                class="nav-item {% if request.endpoint and request.endpoint.startswith('insights') %}active{% endif %}">
                 <span class="nav-icon" aria-hidden="true">📊</span>
                 Insights
+            </a>
+            <a href="{{ url_for('reports.index') }}"
+               class="nav-item {% if request.endpoint and request.endpoint.startswith('reports') %}active{% endif %}">
+                <span class="nav-icon" aria-hidden="true">📑</span>
+                Reports
             </a>
         </div>
 
@@ -198,6 +208,12 @@
            aria-label="Budget">
             <span class="nav-icon" aria-hidden="true">🎯</span>
             <span>Budget</span>
+        </a>
+        <a href="{{ url_for('savings.index') }}"
+           class="bottom-nav-item {% if request.endpoint and request.endpoint.startswith('savings') %}active{% endif %}"
+           aria-label="Savings">
+            <span class="nav-icon" aria-hidden="true">🏦</span>
+            <span>Savings</span>
         </a>
         <a href="{{ url_for('insights.index') }}"
            class="bottom-nav-item {% if request.endpoint and request.endpoint.startswith('insights') %}active{% endif %}"

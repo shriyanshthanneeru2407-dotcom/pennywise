@@ -42,6 +42,16 @@
             </select>
         </div>
 
+        <!-- Transaction Type -->
+        <div class="filter-group">
+            <label for="type">Type</label>
+            <select id="type" name="type" class="form-control">
+                <option value="">All Types</option>
+                <option value="expense" {% if type_filter == 'expense' %}selected{% endif %}>💸 Expense</option>
+                <option value="income" {% if type_filter == 'income' %}selected{% endif %}>💵 Income</option>
+            </select>
+        </div>
+
         <!-- Sort -->
         <div class="filter-group">
             <label for="sort">Sort By</label>
@@ -135,9 +145,15 @@
                         <span class="badge badge-gray">{{ expense.payment_method }}</span>
                     </td>
                     <td style="text-align:right;">
-                        <span class="amount font-medium" style="color:var(--danger);">
-                            {{ current_user.currency_symbol }}{{ "{:,.2f}".format(expense.amount) }}
+                        {% if expense.transaction_type == 'income' %}
+                        <span class="amount font-medium" style="color:var(--primary);">
+                            +{{ current_user.currency_symbol }}{{ "{:,.2f}".format(expense.amount) }}
                         </span>
+                        {% else %}
+                        <span class="amount font-medium" style="color:var(--danger);">
+                            −{{ current_user.currency_symbol }}{{ "{:,.2f}".format(expense.amount) }}
+                        </span>
+                        {% endif %}
                     </td>
                     <td>
                         <div class="action-buttons">
@@ -180,8 +196,8 @@
                         {{ expense.expense_date.strftime('%d %b %Y') }} · {{ expense.category.icon }} {{ expense.category.name }}
                     </div>
                 </div>
-                <span class="amount font-medium" style="color:var(--danger);white-space:nowrap;margin-left:1rem;">
-                    {{ current_user.currency_symbol }}{{ "{:,.0f}".format(expense.amount) }}
+                <span class="amount font-medium" style="white-space:nowrap;margin-left:1rem;{% if expense.transaction_type == 'income' %}color:var(--primary);{% else %}color:var(--danger);{% endif %}">
+                    {{ '+' if expense.transaction_type == 'income' else '−' }}{{ current_user.currency_symbol }}{{ "{:,.0f}".format(expense.amount) }}
                 </span>
             </div>
             <div class="flex items-center justify-between">

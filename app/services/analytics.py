@@ -16,11 +16,12 @@ from decimal import Decimal
 from datetime import date, datetime
 import calendar
 
-from sqlalchemy import func, extract
+from sqlalchemy import func, extract, or_
 from app import db
 from app.models.expense import Expense
 from app.models.category import Category
 from app.models.budget import Budget
+from app.models.savings import SavingsGoal, SavingsContribution
 
 
 def _safe_divide(numerator, denominator, default=Decimal("0")):
@@ -32,11 +33,11 @@ def _safe_divide(numerator, denominator, default=Decimal("0")):
 
 def get_monthly_summary(user_id: int, year: int, month: int) -> dict:
     """
-    Return total spending, transaction count, and category breakdown
-    for a given user/year/month.
+    Return total spending, income, savings, net balance, transaction count,
+    and budget breakdown for a given user/year/month.
     """
-    # Total spending and count in one query
-    result = (
+    # Total expenses (filter by type == 'expense' or None for backwards compatibility)
+    exp_result = (
         db.session.query(
             func.coalesce(func.sum(Expense.amount), Decimal("0")).label("total"),
             func.count(Expense.id).label("count"),
@@ -45,22 +46,58 @@ def get_monthly_summary(user_id: int, year: int, month: int) -> dict:
             Expense.user_id == user_id,
             extract("year", Expense.expense_date) == year,
             extract("month", Expense.expense_date) == month,
+            or_(Expense.transaction_type == "expense", Expense.transaction_type == None),  # noqa: E711
         )
         .one()
     )
 
-    total = Decimal(str(result.total or "0"))
-    count = result.count or 0
+    total_expenses = Decimal(str(exp_result.total or "0"))
+    expense_count = exp_result.count or 0
 
-    # Budget for this month
+    # Total income (filter by type == 'income')
+    inc_result = (
+        db.session.query(
+            func.coalesce(func.sum(Expense.amount), Decimal("0")).label("total"),
+            func.count(Expense.id).label("count"),
+        )
+        .filter(
+            Expense.user_id == user_id,
+            extract("year", Expense.expense_date) == year,
+            extract("month", Expense.expense_date) == month,
+            Expense.transaction_type == "income",
+        )
+        .one()
+    )
+
+    total_income = Decimal(str(inc_result.total or "0"))
+    income_count = inc_result.count or 0
+
+    count = expense_count + income_count
+    net_balance = total_income - total_expenses
+
+    # Total savings in active goals
+    total_savings_val = (
+        db.session.query(func.coalesce(func.sum(SavingsGoal.current_amount), Decimal("0")))
+        .filter(SavingsGoal.user_id == user_id)
+        .scalar()
+    )
+    total_savings = Decimal(str(total_savings_val or "0"))
+
+    # Savings rate = (Income - Expense) / Income * 100
+    savings_rate = None
+    if total_income > 0:
+        savings_rate = float((_safe_divide(net_balance, total_income) * 100).quantize(Decimal("0.1")))
+
+    # Overall Monthly Budget
     budget = Budget.query.filter_by(user_id=user_id, year=year, month=month).first()
-    budget_amount = Decimal(str(budget.amount)) if budget else None
-    remaining = (budget_amount - total) if budget_amount is not None else None
 
-    # Budget percentage (capped display at 100, but we show actual %)
+    budget_amount = Decimal(str(budget.amount)) if budget else None
+    remaining = (budget_amount - total_expenses) if budget_amount is not None else None
+
+    # Budget percentage
     budget_pct = None
     if budget_amount and budget_amount > 0:
-        budget_pct = float((_safe_divide(total, budget_amount) * 100).quantize(Decimal("0.1")))
+        budget_pct = float((_safe_divide(total_expenses, budget_amount) * 100).quantize(Decimal("0.1")))
 
     # Calculate days elapsed in month to get average daily spend
     today = date.today()
@@ -69,11 +106,18 @@ def get_monthly_summary(user_id: int, year: int, month: int) -> dict:
     else:
         days_elapsed = calendar.monthrange(year, month)[1]
 
-    avg_daily = _safe_divide(total, Decimal(str(days_elapsed)))
+    avg_daily = _safe_divide(total_expenses, Decimal(str(days_elapsed)))
 
     return {
-        "total": total,
+        "total": total_expenses,
+        "total_expenses": total_expenses,
+        "total_income": total_income,
+        "net_balance": net_balance,
+        "total_savings": total_savings,
+        "savings_rate": savings_rate,
         "count": count,
+        "expense_count": expense_count,
+        "income_count": income_count,
         "budget": budget_amount,
         "remaining": remaining,
         "budget_pct": budget_pct,
@@ -101,6 +145,7 @@ def get_category_totals(user_id: int, year: int, month: int) -> list:
             Expense.user_id == user_id,
             extract("year", Expense.expense_date) == year,
             extract("month", Expense.expense_date) == month,
+            or_(Expense.transaction_type == "expense", Expense.transaction_type == None),  # noqa: E711
         )
         .group_by(Category.id, Category.name, Category.icon, Category.color)
         .order_by(func.sum(Expense.amount).desc())
@@ -139,6 +184,7 @@ def get_daily_spending(user_id: int, year: int, month: int) -> list:
             Expense.user_id == user_id,
             extract("year", Expense.expense_date) == year,
             extract("month", Expense.expense_date) == month,
+            or_(Expense.transaction_type == "expense", Expense.transaction_type == None),  # noqa: E711
         )
         .group_by(extract("day", Expense.expense_date))
         .order_by(extract("day", Expense.expense_date))
@@ -240,6 +286,7 @@ def get_highest_expense(user_id: int, year: int, month: int):
             Expense.user_id == user_id,
             extract("year", Expense.expense_date) == year,
             extract("month", Expense.expense_date) == month,
+            or_(Expense.transaction_type == "expense", Expense.transaction_type == None),  # noqa: E711
         )
         .order_by(Expense.amount.desc())
         .first()

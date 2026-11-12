@@ -22,6 +22,21 @@
             >
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
+                {# ---- Transaction Type ---- #}
+                <div class="form-group mb-4">
+                    <label class="form-label">Transaction Type</label>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                        <label style="cursor:pointer;border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;background:var(--surface-2);">
+                            <input type="radio" name="transaction_type" value="expense" {% if form_data.get('transaction_type', expense.transaction_type if expense else 'expense') == 'expense' %}checked{% endif %} style="accent-color:var(--danger);">
+                            <span style="font-weight:600;color:var(--danger);">💸 Expense</span>
+                        </label>
+                        <label style="cursor:pointer;border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;background:var(--surface-2);">
+                            <input type="radio" name="transaction_type" value="income" {% if form_data.get('transaction_type', expense.transaction_type if expense else 'expense') == 'income' %}checked{% endif %} style="accent-color:var(--primary);">
+                            <span style="font-weight:600;color:var(--primary);">💵 Income</span>
+                        </label>
+                    </div>
+                </div>
+
                 {# ---- Amount (required) ---- #}
                 <div class="form-group">
                     <label class="form-label" for="amount">

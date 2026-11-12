@@ -28,75 +28,60 @@
     </a>
 </div>
 
-{# ---- Summary cards ---- #}
-<div class="dashboard-stats">
-    <!-- Total Spent -->
+{# ---- Cash Flow Summary Cards ---- #}
+<div class="dashboard-stats" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom:1.5rem;">
+    <!-- Total Income -->
     <div class="stat-card">
         <div class="flex items-center justify-between" style="margin-bottom:0.75rem;">
-            <span class="stat-label">Total Spent</span>
-            <div class="stat-icon" style="background:#fee2e2;">💸</div>
+            <span class="stat-label">Total Income</span>
+            <div class="stat-icon" style="background:rgba(0,230,118,0.15);color:var(--primary);">💵</div>
         </div>
-        <div class="stat-value amount" style="color:var(--primary);text-shadow:0 0 12px rgba(0,230,118,0.4);">
-            {{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.total) }}
+        <div class="stat-value amount" style="color:var(--primary);text-shadow:0 0 10px rgba(0,230,118,0.3);">
+            {{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.total_income) }}
         </div>
-        <div class="stat-sub">{{ summary.month_name }} {{ summary.year }}</div>
+        <div class="stat-sub text-success">{{ summary.income_count }} inflow{{ 's' if summary.income_count != 1 else '' }} this month</div>
     </div>
 
-    <!-- Budget -->
+    <!-- Total Expenses -->
     <div class="stat-card">
         <div class="flex items-center justify-between" style="margin-bottom:0.75rem;">
-            <span class="stat-label">Budget</span>
-            <div class="stat-icon" style="background:#dbeafe;">🎯</div>
+            <span class="stat-label">Total Expenses</span>
+            <div class="stat-icon" style="background:rgba(239,68,68,0.15);color:var(--danger);">💸</div>
         </div>
-        {% if summary.budget %}
-            <div class="stat-value amount">{{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.budget) }}</div>
-            {% if summary.budget_pct is not none %}
-                <div class="stat-sub">
-                    {% if summary.budget_pct >= 100 %}
-                        <span class="text-danger font-medium">{{ summary.budget_pct }}% &bull; Over budget</span>
-                    {% elif summary.budget_pct >= 90 %}
-                        <span class="text-warning font-medium">{{ summary.budget_pct }}% used</span>
-                    {% else %}
-                        <span class="text-success font-medium">{{ summary.budget_pct }}% used</span>
-                    {% endif %}
-                </div>
-            {% endif %}
-        {% else %}
-            <div class="stat-value text-muted" style="font-size:1.125rem;">Not set</div>
-            <div class="stat-sub"><a href="{{ url_for('budgets.index') }}">Set budget &rarr;</a></div>
-        {% endif %}
+        <div class="stat-value amount" style="color:var(--danger);">
+            {{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.total_expenses) }}
+        </div>
+        <div class="stat-sub text-muted">{{ summary.expense_count }} spending item{{ 's' if summary.expense_count != 1 else '' }}</div>
     </div>
 
-    <!-- Remaining -->
+    <!-- Net Cash Flow / Balance -->
     <div class="stat-card">
         <div class="flex items-center justify-between" style="margin-bottom:0.75rem;">
-            <span class="stat-label">Remaining</span>
-            <div class="stat-icon" style="background:#d1fae5;">💰</div>
+            <span class="stat-label">Net Balance</span>
+            <div class="stat-icon" style="background:rgba(59,130,246,0.15);color:#60a5fa;">⚖️</div>
         </div>
-        {% if summary.remaining is not none %}
-            <div class="stat-value amount {% if summary.remaining < 0 %}text-danger{% else %}text-success{% endif %}">
-                {{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.remaining|abs) }}
-                {% if summary.remaining < 0 %}<span style="font-size:0.875rem;"> over</span>{% endif %}
-            </div>
-            <div class="stat-sub">
-                {% if summary.remaining >= 0 %}Left this month{% else %}Over budget{% endif %}
-            </div>
-        {% else %}
-            <div class="stat-value text-muted" style="font-size:1.125rem;">—</div>
-            <div class="stat-sub text-muted">No budget set</div>
-        {% endif %}
-    </div>
-
-    <!-- Transactions -->
-    <div class="stat-card">
-        <div class="flex items-center justify-between" style="margin-bottom:0.75rem;">
-            <span class="stat-label">Transactions</span>
-            <div class="stat-icon" style="background:#ede9fe;">📋</div>
+        <div class="stat-value amount {% if summary.net_balance >= 0 %}text-success{% else %}text-danger{% endif %}">
+            {{ '+' if summary.net_balance > 0 else '' }}{{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.net_balance) }}
         </div>
-        <div class="stat-value">{{ summary.count }}</div>
         <div class="stat-sub">
-            Avg {{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.avg_daily) }}/day
+            {% if summary.savings_rate is not none %}
+                <span class="text-success font-medium">{{ summary.savings_rate }}% savings rate</span>
+            {% else %}
+                <span class="text-muted">Cash flow margin</span>
+            {% endif %}
         </div>
+    </div>
+
+    <!-- Total Savings in Goals -->
+    <div class="stat-card">
+        <div class="flex items-center justify-between" style="margin-bottom:0.75rem;">
+            <span class="stat-label">Savings Vault</span>
+            <div class="stat-icon" style="background:rgba(168,85,247,0.15);color:#c084fc;">🏦</div>
+        </div>
+        <div class="stat-value amount" style="color:#c084fc;">
+            {{ current_user.currency_symbol }}{{ "{:,.0f}".format(summary.total_savings) }}
+        </div>
+        <div class="stat-sub"><a href="{{ url_for('savings.index') }}" style="color:inherit;">View savings goals &rarr;</a></div>
     </div>
 </div>
 
@@ -220,9 +205,15 @@
                         <span class="badge badge-gray">{{ expense.payment_method }}</span>
                     </td>
                     <td style="text-align:right;">
-                        <span class="amount font-medium" style="color:var(--danger);">
-                            {{ current_user.currency_symbol }}{{ "{:,.0f}".format(expense.amount) }}
+                        {% if expense.transaction_type == 'income' %}
+                        <span class="amount font-medium" style="color:var(--primary);">
+                            +{{ current_user.currency_symbol }}{{ "{:,.0f}".format(expense.amount) }}
                         </span>
+                        {% else %}
+                        <span class="amount font-medium" style="color:var(--danger);">
+                            −{{ current_user.currency_symbol }}{{ "{:,.0f}".format(expense.amount) }}
+                        </span>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
@@ -239,34 +230,68 @@
     {% endif %}
 </div>
 
-{# ---- Upcoming recurring ---- #}
-{% if upcoming_recurring %}
-<div class="card">
-    <div class="card-header">
-        <h3 style="font-size:1rem;margin:0;">🔄 Upcoming Recurring</h3>
-        <a href="{{ url_for('recurring.index') }}" class="btn btn-ghost btn-sm">Manage →</a>
-    </div>
-    <div class="card-body" style="padding:0;">
-        {% for item in upcoming_recurring %}
-        <div class="flex items-center justify-between" style="padding:0.875rem 1.25rem;border-bottom:1px solid var(--border);">
-            <div>
-                <div class="font-medium text-sm">{{ item.description }}</div>
-                <div class="text-xs text-muted">
-                    {{ item.frequency }} · Due {{ item.next_due_date.strftime('%d %b %Y') }}
-                </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <span class="amount font-medium">{{ current_user.currency_symbol }}{{ "{:,.0f}".format(item.amount) }}</span>
-                <form action="{{ url_for('recurring.log_expense', recurring_id=item.id) }}" method="post" style="margin:0;">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button type="submit" class="btn btn-outline-primary btn-sm">Log</button>
-                </form>
-            </div>
+<div class="grid-2" style="gap:1.5rem;margin-bottom:1.5rem;">
+    {# ---- Active Savings Goals ---- #}
+    <div class="card">
+        <div class="card-header">
+            <h3 style="font-size:1rem;margin:0;">🎯 Savings Goals</h3>
+            <a href="{{ url_for('savings.index') }}" class="btn btn-ghost btn-sm">View all →</a>
         </div>
-        {% endfor %}
+        <div class="card-body" style="padding:1rem 1.25rem;">
+            {% if savings_goals %}
+                {% for goal in savings_goals %}
+                <div style="margin-bottom:0.875rem;">
+                    <div class="flex items-center justify-between text-sm" style="margin-bottom:0.25rem;">
+                        <span class="font-medium">{{ goal.title }}</span>
+                        <span class="text-xs text-muted">{{ goal.progress_pct }}% ({{ current_user.currency_symbol }}{{ "{:,.0f}".format(goal.current_amount) }}/{{ "{:,.0f}".format(goal.target_amount) }})</span>
+                    </div>
+                    <div class="progress-bar-container" style="height:6px;">
+                        <div class="progress-bar success" style="width:{{ [goal.progress_pct, 100]|min }}%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center text-muted text-sm" style="padding:1rem;">
+                    <p style="margin-bottom:0.5rem;">No active savings goals.</p>
+                    <a href="{{ url_for('savings.new') }}" class="btn btn-outline-primary btn-sm">+ Start a Goal</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# ---- Upcoming recurring ---- #}
+    <div class="card">
+        <div class="card-header">
+            <h3 style="font-size:1rem;margin:0;">🔄 Upcoming Recurring</h3>
+            <a href="{{ url_for('recurring.index') }}" class="btn btn-ghost btn-sm">Manage →</a>
+        </div>
+        <div class="card-body" style="padding:0;">
+            {% if upcoming_recurring %}
+                {% for item in upcoming_recurring %}
+                <div class="flex items-center justify-between" style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);">
+                    <div>
+                        <div class="font-medium text-sm">{{ item.description }}</div>
+                        <div class="text-xs text-muted">
+                            {{ item.frequency }} · Due {{ item.next_due_date.strftime('%d %b %Y') }}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="amount font-medium">{{ current_user.currency_symbol }}{{ "{:,.0f}".format(item.amount) }}</span>
+                        <form action="{{ url_for('recurring.log_expense', recurring_id=item.id) }}" method="post" style="margin:0;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-outline-primary btn-sm">Log</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center text-muted text-sm" style="padding:1.5rem;">
+                    No upcoming bills or subscriptions.
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
-{% endif %}
 
 {% endblock %}
 

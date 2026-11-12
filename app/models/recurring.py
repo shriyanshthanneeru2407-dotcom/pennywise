@@ -25,6 +25,7 @@ class RecurringExpense(db.Model):
     currency = db.Column(db.String(3), nullable=False, default="INR")
 
     frequency = db.Column(db.String(10), nullable=False, default="Monthly")  # Weekly/Monthly/Yearly
+    transaction_type = db.Column(db.String(10), nullable=False, default="expense")  # 'expense' or 'income'
     next_due_date = db.Column(db.Date, nullable=False)
     payment_method = db.Column(db.String(20), nullable=False, default="Other")
 

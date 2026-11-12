@@ -26,7 +26,7 @@ class TestRegistration:
             "confirm_password": "securepass123",
         }, follow_redirects=True)
         assert resp.status_code == 200
-        assert b"SpendWise" in resp.data  # Landed on dashboard
+        assert b"PennyWise" in resp.data  # Landed on dashboard
 
         # Verify user was created in DB
         with app.app_context():
@@ -53,6 +53,23 @@ class TestRegistration:
             assert user is not None
             assert user.currency == "USD"
             assert user.currency_symbol == "$"
+
+    def test_register_with_aed_currency(self, client, app):
+        """User can select AED currency upon registration."""
+        resp = client.post("/auth/register", data={
+            "name": "Dubai User",
+            "email": "dubai@example.com",
+            "password": "securepass123",
+            "confirm_password": "securepass123",
+            "currency": "AED",
+        }, follow_redirects=True)
+        assert resp.status_code == 200
+
+        with app.app_context():
+            user = User.query.filter_by(email="dubai@example.com").first()
+            assert user is not None
+            assert user.currency == "AED"
+            assert user.currency_symbol == "د.إ"
 
     def test_register_duplicate_email(self, client, app):
         """Registering with an email that already exists is rejected."""

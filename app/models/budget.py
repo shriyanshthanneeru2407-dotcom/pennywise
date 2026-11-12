@@ -28,7 +28,7 @@ class Budget(db.Model):
         onupdate=lambda: datetime.now(timezone.utc),
     )
 
-    # Ensure one budget per user per month
+    # Ensure exactly one overall budget per user per month
     __table_args__ = (
         db.UniqueConstraint("user_id", "year", "month", name="uq_budget_user_month"),
         db.Index("ix_budgets_user_year_month", "user_id", "year", "month"),
@@ -36,3 +36,33 @@ class Budget(db.Model):
 
     def __repr__(self) -> str:
         return f"<Budget user={self.user_id} {self.year}-{self.month:02d} {self.amount}>"
+
+
+class CategoryBudget(db.Model):
+    __tablename__ = "category_budgets"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    category_id = db.Column(db.Integer, db.ForeignKey("categories.id", ondelete="CASCADE"), nullable=False, index=True)
+
+    year = db.Column(db.Integer, nullable=False)
+    month = db.Column(db.Integer, nullable=False)
+
+    amount = db.Column(db.Numeric(12, 2), nullable=False)
+
+    category = db.relationship("Category")
+
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "category_id", "year", "month", name="uq_category_budget_user_month"),
+        db.Index("ix_cat_budgets_user_year_month", "user_id", "year", "month"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<CategoryBudget user={self.user_id} cat={self.category_id} {self.year}-{self.month:02d} {self.amount}>"

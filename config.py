@@ -1,11 +1,12 @@
 """
-config.py — SpendWise application configuration.
+config.py — PennyWise application configuration.
 
 Uses environment variables for secrets so nothing sensitive is
 committed to the repository.
 """
 
 import os
+import ssl
 from dotenv import load_dotenv
 
 # Load .env file in development (harmless in production)
@@ -14,17 +15,40 @@ load_dotenv()
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
+def _normalize_db_url(raw_url: str) -> str:
+    """Normalize database URL for SQLAlchemy and pure-python pg8000 driver."""
+    if not raw_url:
+        return ""
+    if raw_url.startswith("postgres://"):
+        raw_url = raw_url.replace("postgres://", "postgresql+pg8000://", 1)
+    elif raw_url.startswith("postgresql://"):
+        raw_url = raw_url.replace("postgresql://", "postgresql+pg8000://", 1)
+    return raw_url
+
+
+def _get_engine_options(db_url: str) -> dict:
+    """Build engine options such as SSL context for PostgreSQL / Supabase pooler."""
+    if "pg8000" in db_url or "postgresql" in db_url:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return {
+            "connect_args": {"ssl_context": ctx},
+            "pool_pre_ping": True,
+            "pool_recycle": 300,
+        }
+    return {}
+
+
 class Config:
     """Base configuration shared by all environments."""
 
     # Flask secret key — MUST be set in environment for production
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
 
-    # SQLAlchemy — default to SQLite for local development
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL",
-        f"sqlite:///{os.path.join(BASE_DIR, 'instance', 'spendwise.db')}"
-    )
+    _db_url = _normalize_db_url(os.environ.get("DATABASE_URL", ""))
+    SQLALCHEMY_DATABASE_URI = _db_url or f"sqlite:///{os.path.join(BASE_DIR, 'instance', 'pennywise.db')}"
+    SQLALCHEMY_ENGINE_OPTIONS = _get_engine_options(SQLALCHEMY_DATABASE_URI)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # File uploads
@@ -45,11 +69,15 @@ class Config:
     # WTF CSRF
     WTF_CSRF_ENABLED = True
 
+    # Google OAuth 2.0
+    GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+    GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
+
 
 class DevelopmentConfig(Config):
-    """Development: debug on, SQLite, verbose errors."""
+    """Development: debug on, SQLite or dev DB, verbose errors."""
     DEBUG = True
-    SQLALCHEMY_ECHO = False  # Set True to log SQL queries
+    SQLALCHEMY_ECHO = False
     SESSION_COOKIE_SECURE = False  # localhost uses http
 
 
@@ -58,12 +86,10 @@ class ProductionConfig(Config):
     DEBUG = False
     SESSION_COOKIE_SECURE = True  # Require HTTPS
 
-    # Postgres DATABASE_URL from environment or fallback to /tmp on serverless
-    _raw_db = os.environ.get("DATABASE_URL", "")
-    if _raw_db.startswith("postgres://"):
-        _raw_db = _raw_db.replace("postgres://", "postgresql://", 1)
-    SQLALCHEMY_DATABASE_URI = _raw_db or "sqlite:////tmp/spendwise.db"
-    UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", "/tmp/spendwise_uploads")
+    _raw_db = _normalize_db_url(os.environ.get("DATABASE_URL", ""))
+    SQLALCHEMY_DATABASE_URI = _raw_db or "sqlite:////tmp/pennywise.db"
+    SQLALCHEMY_ENGINE_OPTIONS = _get_engine_options(SQLALCHEMY_DATABASE_URI)
+    UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", "/tmp/pennywise_uploads")
 
 
 class TestingConfig(Config):
@@ -71,6 +97,7 @@ class TestingConfig(Config):
     TESTING = True
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    SQLALCHEMY_ENGINE_OPTIONS = {}
     WTF_CSRF_ENABLED = False
     SECRET_KEY = "test-secret-key"
     UPLOAD_FOLDER = "/tmp/spendwise_test_uploads"

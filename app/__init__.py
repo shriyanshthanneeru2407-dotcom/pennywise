@@ -66,7 +66,9 @@ def create_app(config_name: str = None) -> Flask:
     from app.expenses.routes import expenses_bp
     from app.budgets.routes import budgets_bp
     from app.recurring.routes import recurring_bp
+    from app.savings.routes import savings_bp
     from app.insights.routes import insights_bp
+    from app.reports.routes import reports_bp
     from app.settings.routes import settings_bp
     from app.main.routes import main_bp
 
@@ -75,8 +77,10 @@ def create_app(config_name: str = None) -> Flask:
     app.register_blueprint(dashboard_bp, url_prefix="/dashboard")
     app.register_blueprint(expenses_bp, url_prefix="/expenses")
     app.register_blueprint(budgets_bp, url_prefix="/budget")
+    app.register_blueprint(savings_bp, url_prefix="/savings")
     app.register_blueprint(recurring_bp, url_prefix="/recurring")
     app.register_blueprint(insights_bp, url_prefix="/insights")
+    app.register_blueprint(reports_bp, url_prefix="/reports")
     app.register_blueprint(settings_bp, url_prefix="/settings")
 
     # --- Register error handlers ---
@@ -84,7 +88,7 @@ def create_app(config_name: str = None) -> Flask:
     register_error_handlers(app)
 
     # --- Import models so Flask-Migrate can detect them ---
-    from app.models import user, expense, category, budget, recurring, receipt  # noqa: F401
+    from app.models import user, expense, category, budget, recurring, receipt, savings  # noqa: F401
 
     # Ensure tables and default data exist
     with app.app_context():
@@ -103,10 +107,10 @@ def create_app(config_name: str = None) -> Flask:
         # Seed demo user if none exists
         from app.models.user import User
         try:
-            if not User.query.filter_by(email="demo@spendwise.app").first():
+            if not User.query.filter_by(email="demo@pennywise.app").first():
                 demo_user = User(
-                    name="Demo User",
-                    email="demo@spendwise.app",
+                    name="PennyWise Demo",
+                    email="demo@pennywise.app",
                     currency="INR",
                     theme="dark",
                 )

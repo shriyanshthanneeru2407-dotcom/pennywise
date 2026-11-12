@@ -73,6 +73,47 @@ class TestAnalytics:
         assert summary["total"] == Decimal("1000.00")
         assert summary["count"] == 3
 
+    def test_monthly_summary_income_and_net_balance(self, db, app):
+        """Summary computes cash flow: total income, expenses, net balance, and savings rate."""
+        user_id = self._make_user(db, app, "cashflow@test.com")
+        today = date.today()
+
+        with app.app_context():
+            food = Category.query.filter_by(name="Food").first()
+            salary_cat = Category.query.filter_by(name="Salary").first() or food
+
+            # Add Income: 50,000
+            inc = Expense(
+                user_id=user_id,
+                category_id=salary_cat.id,
+                amount=Decimal("50000.00"),
+                currency="INR",
+                description="Monthly Salary",
+                expense_date=date(today.year, today.month, 1),
+                payment_method="Bank Transfer",
+                transaction_type="income",
+            )
+            # Add Expense: 15,000
+            exp = Expense(
+                user_id=user_id,
+                category_id=food.id,
+                amount=Decimal("15000.00"),
+                currency="INR",
+                description="Groceries",
+                expense_date=date(today.year, today.month, 5),
+                payment_method="UPI",
+                transaction_type="expense",
+            )
+            db.session.add_all([inc, exp])
+            db.session.commit()
+
+            summary = analytics.get_monthly_summary(user_id, today.year, today.month)
+
+        assert summary["total_income"] == Decimal("50000.00")
+        assert summary["total_expenses"] == Decimal("15000.00")
+        assert summary["net_balance"] == Decimal("35000.00")
+        assert summary["savings_rate"] == 70.0
+
     def test_monthly_comparison_zero_previous(self, db, app):
         """
         Monthly comparison when previous month has zero spending.

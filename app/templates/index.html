@@ -10,8 +10,8 @@
 <!-- Navigation bar -->
 <nav class="landing-nav">
     <a href="{{ url_for('main.index') }}" style="font-size:1.25rem;font-weight:800;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:0.75rem;">
-        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="SpendWise" class="brand-logo-img logo-continuous-glow">
-        <span>Spend<span style="color:var(--primary);text-shadow:0 0 12px rgba(0,230,118,0.5);">Wise</span></span>
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="PennyWise" class="brand-logo-img logo-continuous-glow">
+        <span>Penny<span style="color:var(--primary);text-shadow:0 0 12px rgba(0,230,118,0.5);">Wise</span></span>
     </a>
     <div class="flex items-center gap-3">
         <a href="{{ url_for('auth.login') }}" class="btn btn-ghost">Sign In</a>
@@ -24,13 +24,13 @@
     <div style="display:flex;justify-content:center;margin-bottom:2rem;">
         <div class="hero-logo-container">
             <div class="hero-logo-halo"></div>
-            <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="SpendWise Logo" class="hero-logo-animated">
+            <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="PennyWise Logo" class="hero-logo-animated">
         </div>
     </div>
-    <h1 style="letter-spacing:-0.03em;">Spend<span style="color:var(--primary);text-shadow:0 0 20px rgba(0,230,118,0.6);">Wise</span></h1>
-    <p class="hero-tagline">Understand your spending.<br>Make smarter financial decisions.</p>
+    <h1 style="letter-spacing:-0.03em;">Penny<span style="color:var(--primary);text-shadow:0 0 20px rgba(0,230,118,0.6);">Wise</span></h1>
+    <p class="hero-tagline">Master your money. Build real wealth.<br>Make smarter financial decisions.</p>
     <p class="hero-desc">
-        Track your everyday expenses, monitor monthly budget goals, and discover where your money goes with clear visual charts and absolute privacy.
+        Track cash inflows and expenses, plan category budgets with smart alerts, grow dedicated savings vaults, and gain crystal-clear financial control with total data privacy.
     </p>
     <div class="landing-hero-actions">
         <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
@@ -49,7 +49,7 @@
         <div style="background:var(--surface-2);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;">
             <div class="flex items-center gap-2">
                 <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="" style="width:24px;height:24px;border-radius:6px;" class="logo-continuous-glow">
-                <span style="font-weight:700;font-size:0.95rem;color:var(--text);">SpendWise Dashboard</span>
+                <span style="font-weight:700;font-size:0.95rem;color:var(--text);">PennyWise Dashboard</span>
             </div>
             <span class="badge badge-primary">September 2026</span>
         </div>
@@ -147,7 +147,7 @@
 
 <!-- Footer -->
 <footer class="landing-footer">
-    <p>SpendWise — <em>Understand your spending. Make smarter decisions.</em></p>
+    <p>PennyWise — <em>Master your money. Build real wealth.</em></p>
     <p style="margin-top:0.5rem;">Built with Flask &amp; PostgreSQL &bull; CS50x Final Project</p>
 </footer>
 {% endblock %}
