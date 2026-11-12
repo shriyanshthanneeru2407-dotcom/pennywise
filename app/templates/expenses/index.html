@@ -168,11 +168,12 @@
                                 ✏️
                             </a>
                             {% if expense.receipt %}
-                            <a href="{{ url_for('expenses.serve_receipt', key=expense.receipt.storage_key) }}"
-                               class="btn btn-ghost btn-sm" title="View receipt" target="_blank"
-                               aria-label="View receipt for {{ expense.description }}">
+                            <button type="button"
+                                    onclick="openReceiptModal('{{ url_for('expenses.serve_receipt', key=expense.receipt.storage_key) }}', '{{ expense.description|escape }}')"
+                                    class="btn btn-ghost btn-sm" title="View receipt"
+                                    aria-label="View receipt for {{ expense.description }}">
                                 🧾
-                            </a>
+                            </button>
                             {% endif %}
                             <form action="{{ url_for('expenses.delete', expense_id=expense.id) }}"
                                   method="post" style="margin:0;"
@@ -210,7 +211,9 @@
                 <span class="badge badge-gray">{{ expense.payment_method }}</span>
                 <div class="action-buttons">
                     {% if expense.receipt %}
-                    <a href="{{ url_for('expenses.serve_receipt', key=expense.receipt.storage_key) }}" class="btn btn-ghost btn-sm" target="_blank" title="Receipt">🧾</a>
+                    <button type="button"
+                            onclick="openReceiptModal('{{ url_for('expenses.serve_receipt', key=expense.receipt.storage_key) }}', '{{ expense.description|escape }}')"
+                            class="btn btn-ghost btn-sm" title="View receipt">🧾</button>
                     {% endif %}
                     <a href="{{ url_for('expenses.edit', expense_id=expense.id) }}" class="btn btn-ghost btn-sm">✏️ Edit</a>
                     <form action="{{ url_for('expenses.delete', expense_id=expense.id) }}"
@@ -280,10 +283,51 @@
 </nav>
 {% endif %}
 
+<!-- Receipt Lightbox Modal -->
+<div class="modal-overlay" id="receiptModalOverlay" role="dialog" aria-modal="true" aria-labelledby="receiptModalTitle">
+    <div class="modal" style="max-width:640px;background:var(--surface);border:1px solid var(--border);padding:1.25rem;">
+        <div class="flex items-center justify-between" style="margin-bottom:1rem;">
+            <h3 class="modal-title" id="receiptModalTitle" style="margin:0;font-size:1.1rem;">🧾 Receipt Attachment</h3>
+            <button type="button" class="btn btn-ghost btn-xs" onclick="closeReceiptModal()" style="font-size:1.2rem;padding:0.2rem 0.5rem;">✕</button>
+        </div>
+        <div id="receiptModalContent" style="min-height:240px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);border-radius:8px;overflow:hidden;margin-bottom:1rem;">
+            <!-- Dynamic Image or PDF viewer -->
+        </div>
+        <div class="flex justify-between items-center">
+            <span id="receiptModalDesc" class="text-sm text-muted"></span>
+            <a id="receiptDownloadBtn" href="#" target="_blank" class="btn btn-outline-primary btn-sm" download>
+                📥 Download Original
+            </a>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
+function openReceiptModal(url, description) {
+    const overlay = document.getElementById('receiptModalOverlay');
+    const content = document.getElementById('receiptModalContent');
+    const desc = document.getElementById('receiptModalDesc');
+    const dl = document.getElementById('receiptDownloadBtn');
+
+    desc.textContent = description;
+    dl.href = url;
+
+    if (url.toLowerCase().endsWith('.pdf')) {
+        content.innerHTML = `<iframe src="${url}" style="width:100%;height:400px;border:none;"></iframe>`;
+    } else {
+        content.innerHTML = `<img src="${url}" alt="Receipt" style="max-width:100%;max-height:450px;object-fit:contain;border-radius:4px;">`;
+    }
+    overlay.classList.add('open');
+}
+
+function closeReceiptModal() {
+    const overlay = document.getElementById('receiptModalOverlay');
+    if (overlay) overlay.classList.remove('open');
+}
+
 function setPreset(preset) {
     const fromInput = document.getElementById('date_from');
     const toInput = document.getElementById('date_to');
