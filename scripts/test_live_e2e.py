@@ -4,10 +4,11 @@ Tests authentication, CSRF token handling, session cookies, transaction creation
 budget status, savings goals, insights, and CSV export against the live Vercel app.
 """
 
+import os
 import re
 import requests
 
-BASE_URL = "https://spendwise-sand-xi.vercel.app"
+BASE_URL = os.environ.get("PENNYWISE_LIVE_URL", "https://pennywise-cs50.vercel.app")
 EMAIL = "demo@pennywise.app"
 PASSWORD = "demo1234"
 
@@ -104,7 +105,27 @@ def run_tests():
     assert "Currency" in resp.text, "Currency selector missing"
     print("✅ 11. User Settings & 10-Currency Selection verified (HTTP 200).")
 
-    print("\n🎉 ALL 11 LIVE PRODUCTION END-TO-END TESTS PASSED SUCCESSFULLY!")
+    # 12. Verify Penny AI Assistant & Financial Advisor
+    resp = session.get(f"{BASE_URL}/penny", headers=headers)
+    assert resp.status_code == 200, f"Penny UI failed with {resp.status_code}"
+    assert "Penny" in resp.text, "Penny Assistant missing title"
+    chat_headers = {
+        **headers,
+        "Referer": f"{BASE_URL}/penny",
+        "X-CSRFToken": csrf_token,
+        "Content-Type": "application/json",
+    }
+    chat_resp = session.post(
+        f"{BASE_URL}/penny/chat",
+        headers=chat_headers,
+        json={"message": "Can you summarize my spending this month?"},
+    )
+    assert chat_resp.status_code == 200, f"Penny chat endpoint failed with {chat_resp.status_code}"
+    chat_data = chat_resp.json()
+    assert "reply" in chat_data and len(chat_data["reply"]) > 0, "Penny reply empty"
+    print("✅ 12. Penny AI Assistant & Financial Advisor verified (HTTP 200 & conversational reply).")
+
+    print("\n🎉 ALL 12 LIVE PRODUCTION END-TO-END TESTS PASSED SUCCESSFULLY!")
 
 if __name__ == "__main__":
     run_tests()
