@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications — PennyWise{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h2 style="font-size:1.25rem;margin-bottom:0.25rem;">🔔 Notification Center</h2>
+        <p class="text-muted text-sm">Stay alerted on budget thresholds, upcoming bills, and savings milestones.</p>
+    </div>
+    {% if notifications %}
+    <form action="{{ url_for('notifications.mark_all_read') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-secondary btn-sm">Mark All as Read</button>
+    </form>
+    {% endif %}
+</div>
+
+<div class="card">
+    {% if notifications %}
+        <div style="divide-y: 1px solid var(--border);">
+            {% for n in notifications %}
+            <div style="padding: 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: start; justify-content: space-between; gap: 1rem; {% if not n.is_read %}background: rgba(0, 230, 118, 0.03);{% endif %}">
+                <div style="display: flex; gap: 1rem; align-items: start;">
+                    <div style="font-size: 1.5rem;">
+                        {% if n.type == 'danger' %}🚨
+                        {% elif n.type == 'warning' %}⚠️
+                        {% elif n.type == 'success' %}🎉
+                        {% else %}💡
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                            <span style="font-weight: 600; font-size: 0.95rem;">{{ n.title }}</span>
+                            {% if not n.is_read %}
+                                <span class="badge badge-success" style="font-size: 0.65rem; padding: 0.15rem 0.4rem;">NEW</span>
+                            {% endif %}
+                        </div>
+                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem;">{{ n.message }}</p>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">
+                            {{ n.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    {% if n.link %}
+                        <a href="{{ n.link }}" class="btn btn-secondary btn-sm" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">View</a>
+                    {% endif %}
+                    {% if not n.is_read %}
+                        <form action="{{ url_for('notifications.mark_read', id=n.id) }}" method="post" style="display: inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-secondary btn-sm" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;" title="Mark as Read">✓</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="padding: 3rem 1.5rem; text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🔔</div>
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.25rem;">No Notifications</h3>
+            <p style="color: var(--text-muted); font-size: 0.875rem;">You're all caught up! Threshold alerts and bill reminders will appear here.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

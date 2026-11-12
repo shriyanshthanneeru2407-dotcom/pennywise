@@ -64,12 +64,12 @@
             <a href="{{ url_for('expenses.index') }}"
                class="nav-item {% if request.endpoint and request.endpoint.startswith('expenses') and request.endpoint != 'expenses.new' %}active{% endif %}">
                 <span class="nav-icon" aria-hidden="true">💳</span>
-                Expenses
+                Transactions
             </a>
             <a href="{{ url_for('expenses.new') }}"
                class="nav-item {% if request.endpoint == 'expenses.new' %}active{% endif %}">
                 <span class="nav-icon" aria-hidden="true">➕</span>
-                Add Expense
+                Add Transaction
             </a>
             <a href="{{ url_for('budgets.index') }}"
                class="nav-item {% if request.endpoint and request.endpoint.startswith('budgets') %}active{% endif %}">
