@@ -50,6 +50,10 @@ def create_app(config_name: str = None) -> Flask:
     except OSError:
         pass
 
+    # Support reverse proxies (Vercel, AWS, etc.) for correct HTTPS, proto, and host detection
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
     # --- Bind extensions to app ---
     db.init_app(app)
     migrate.init_app(app, db)
