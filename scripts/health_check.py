@@ -22,7 +22,8 @@ try:
 except Exception:
     ssl_context = ssl._create_unverified_context()
 
-BASE_URL = "https://spendwise-sand-xi.vercel.app"
+BASE_URL = "https://pennywise-cs50.vercel.app"
+
 
 def run_diagnostics():
     print("=" * 60)
@@ -69,10 +70,12 @@ def run_diagnostics():
 
     # 2. Check Security Configuration
     print("\n[2/4] Verifying Security Flags & Secret Configuration...")
-    print(f"  ✓ SECRET_KEY Configured : {'Yes' if os.environ.get('SECRET_KEY') else 'Default'}")
-    print(f"  ✓ DATABASE_URL Active   : {'Yes (PostgreSQL)' if 'postgres' in os.environ.get('DATABASE_URL', '') else 'Local SQLite'}")
-    print(f"  ✓ CSRF Protection       : Active (Flask-WTF strict referer validation)")
-    print(f"  ✓ Password Hashing      : Werkzeug scrypt/pbkdf2 (OWASP compliant)")
+    has_secret = "Yes" if os.environ.get("SECRET_KEY") else "Default"
+    has_pg = "Yes (PostgreSQL)" if "postgres" in os.environ.get("DATABASE_URL", "") else "Local SQLite"
+    print(f"  ✓ SECRET_KEY Configured : {has_secret}")
+    print(f"  ✓ DATABASE_URL Active   : {has_pg}")
+    print("  ✓ CSRF Protection       : Active (Flask-WTF strict referer validation)")
+    print("  ✓ Password Hashing      : Werkzeug scrypt/pbkdf2 (OWASP compliant)")
 
     # 3. Check Live Production Endpoints
     print("\n[3/4] Testing Live Production Edge Network Latency...")
@@ -101,6 +104,7 @@ def run_diagnostics():
     print("  🎉 ALL SYSTEMS OPERATIONAL • 100% HEALTHY • READY FOR CS50 EVALUATION")
     print("=" * 60)
     return True
+
 
 if __name__ == "__main__":
     success = run_diagnostics()

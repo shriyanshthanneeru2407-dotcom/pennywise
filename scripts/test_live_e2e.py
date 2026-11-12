@@ -12,11 +12,13 @@ BASE_URL = os.environ.get("PENNYWISE_LIVE_URL", "https://pennywise-cs50.vercel.a
 EMAIL = "demo@pennywise.app"
 PASSWORD = "demo1234"
 
+
 def extract_csrf(html: str) -> str:
     m = re.search(r'name="csrf_token"\s+value="([^"]+)"', html)
     if not m:
         m = re.search(r'value="([^"]+)"\s+name="csrf_token"', html)
     return m.group(1) if m else ""
+
 
 def run_tests():
     print(f"🚀 Running Live E2E User Journey on {BASE_URL}...")
@@ -126,6 +128,7 @@ def run_tests():
     print("✅ 12. Penny AI Assistant & Financial Advisor verified (HTTP 200 & conversational reply).")
 
     print("\n🎉 ALL 12 LIVE PRODUCTION END-TO-END TESTS PASSED SUCCESSFULLY!")
+
 
 if __name__ == "__main__":
     run_tests()

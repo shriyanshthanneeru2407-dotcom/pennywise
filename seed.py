@@ -18,19 +18,18 @@ import os
 import sys
 from decimal import Decimal
 from datetime import date, timedelta
-import random
 
 # Allow running from project root
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app import create_app, db
-from app.models.user import User
-from app.models.category import Category, DEFAULT_CATEGORIES
-from app.models.expense import Expense, PAYMENT_METHODS
-from app.models.budget import Budget
-from app.models.recurring import RecurringExpense
-from app.models.savings import SavingsGoal, SavingsContribution
-from app.models.notification import Notification
+from app import create_app, db  # noqa: E402
+from app.models.user import User  # noqa: E402
+from app.models.category import Category, DEFAULT_CATEGORIES  # noqa: E402
+from app.models.expense import Expense  # noqa: E402
+from app.models.budget import Budget  # noqa: E402
+from app.models.recurring import RecurringExpense  # noqa: E402
+from app.models.savings import SavingsGoal  # noqa: E402
+from app.models.notification import Notification  # noqa: E402
 
 
 def seed():
@@ -43,75 +42,58 @@ def seed():
         # --- 1. Seed default categories ---
         print("  → Creating system categories...")
         for cat_data in DEFAULT_CATEGORIES:
-            existing = Category.query.filter_by(user_id=None, name=cat_data["name"]).first()
+            existing = Category.query.filter_by(
+                user_id=None,
+                name=cat_data["name"],
+            ).first()
             if not existing:
                 cat = Category(user_id=None, **cat_data)
                 db.session.add(cat)
-
         db.session.commit()
-        print(f"     ✓ {len(DEFAULT_CATEGORIES)} categories ready")
+        print("     ✓ Categories created")
 
-        # --- 2. Create demo user ---
+        # --- 2. Seed demo user ---
+        print("  → Creating demo user...")
         demo_email = "demo@pennywise.app"
         user = User.query.filter_by(email=demo_email).first()
-
         if not user:
-            print("  → Creating demo user...")
             user = User(
-                name="PennyWise Demo",
+                name="Demo User",
                 email=demo_email,
                 currency="INR",
-                theme="dark",
+                email_verified=True,
             )
             user.set_password("demo1234")
             db.session.add(user)
             db.session.commit()
-            print(f"     ✓ Demo user: {demo_email} / demo1234")
+            print(f"     ✓ Created user {demo_email}")
         else:
-            print(f"     ✓ Demo user already exists: {demo_email}")
+            print(f"     ℹ User {demo_email} already exists")
 
-        # --- 3. Set a budget for the current month ---
+        # --- 3. Seed monthly budget ---
+        print("  → Creating monthly budget...")
         today = date.today()
-        budget = Budget.query.filter_by(
-            user_id=user.id, year=today.year, month=today.month
+        existing_budget = Budget.query.filter_by(
+            user_id=user.id,
+            year=today.year,
+            month=today.month,
         ).first()
-
-        if not budget:
+        if not existing_budget:
             budget = Budget(
                 user_id=user.id,
                 year=today.year,
                 month=today.month,
-                amount=Decimal("50000"),
+                amount=Decimal("50000.00"),
                 currency="INR",
             )
             db.session.add(budget)
             db.session.commit()
-            print("     ✓ Monthly budget set: ₹50,000")
+            print(f"     ✓ Budget set to ₹50,000 for {today.strftime('%B %Y')}")
+        else:
+            print("     ℹ Budget already exists")
 
         # --- 4. Seed sample expenses (current month + last month) ---
         cats = {c.name: c for c in Category.query.filter_by(user_id=None).all()}
-
-        def add_expense(desc, cat_name, amount, days_ago=0, payment="UPI", notes=None):
-            expense_date = today - timedelta(days=days_ago)
-            # Skip if already exists (re-run safe)
-            existing = Expense.query.filter_by(
-                user_id=user.id,
-                description=desc,
-                expense_date=expense_date,
-            ).first()
-            if existing:
-                return
-            e = Expense(
-                user_id=user.id,
-                category_id=cats[cat_name].id,
-                amount=Decimal(str(amount)),
-                currency="INR",
-                description=desc,
-                expense_date=expense_date,
-                payment_method=payment,
-                notes=notes,
-            )
-            db.session.add(e)
 
         print("  → Creating sample expenses (current month)...")
 
@@ -182,8 +164,14 @@ def seed():
         add_expense("Mobile bill", "Utilities", 499, last_month_offset + 18, "UPI")
 
         # Income transactions
-        add_expense("Monthly Tech Salary", "Salary", 85000, 2, "Bank Transfer", notes="Direct deposit", tx_type="income")
-        add_expense("Web Design Project", "Freelance", 25000, 10, "Bank Transfer", notes="Client milestone 2", tx_type="income")
+        add_expense(
+            "Monthly Tech Salary", "Salary", 85000, 2, "Bank Transfer",
+            notes="Direct deposit", tx_type="income",
+        )
+        add_expense(
+            "Web Design Project", "Freelance", 25000, 10, "Bank Transfer",
+            notes="Client milestone 2", tx_type="income",
+        )
 
         # --- 5. Seed savings goals ---
         print("  → Creating savings goals...")
