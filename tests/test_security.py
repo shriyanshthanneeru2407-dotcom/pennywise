@@ -182,3 +182,53 @@ class TestJSONBackup:
         assert len(data["transactions"]) == 1
         assert data["transactions"][0]["amount"] == "123.45"
         assert data["transactions"][0]["description"] == "Dinner with friends"
+
+    def test_json_backup_import(self, client, app):
+        """Verify restoring/importing financial records from a JSON backup."""
+        import io
+        import json
+
+        with app.app_context():
+            u = User(name="Import User", email="importer@test.com", currency="EUR")
+            u.set_password("pass1234")
+            db.session.add(u)
+            db.session.commit()
+
+        login(client, "importer@test.com", "pass1234")
+
+        payload = {
+            "version": "1.0",
+            "custom_categories": [
+                {"name": "Gaming", "category_type": "expense", "icon": "🎮", "color": "#8b5cf6"}
+            ],
+            "transactions": [
+                {
+                    "date": "2026-05-15",
+                    "description": "Steam Game Purchase",
+                    "amount": "59.99",
+                    "transaction_type": "expense",
+                    "payment_method": "Credit Card",
+                    "category": "Gaming",
+                    "notes": "CS50 reward",
+                }
+            ],
+        }
+        data = {
+            "backup_file": (io.BytesIO(json.dumps(payload).encode("utf-8")), "backup.json")
+        }
+        resp = client.post(
+            "/settings/backup/import",
+            data=data,
+            content_type="multipart/form-data",
+            follow_redirects=True,
+        )
+        assert resp.status_code == 200
+        assert b"Successfully imported 1 transaction" in resp.data
+
+        with app.app_context():
+            user = User.query.filter_by(email="importer@test.com").first()
+            exp = Expense.query.filter_by(user_id=user.id).first()
+            assert exp is not None
+            assert exp.description == "Steam Game Purchase"
+            assert exp.amount == Decimal("59.99")
+            assert exp.category.name == "Gaming"

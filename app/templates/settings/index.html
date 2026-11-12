@@ -226,6 +226,20 @@
                 💾 Download Complete JSON Backup
             </a>
         </div>
+
+        <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border);">
+
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">📤 Restore from JSON Backup</h4>
+        <p class="text-sm text-muted" style="margin-bottom: 1rem;">
+            Upload a previously exported PennyWise JSON backup to restore your categories and transactions.
+        </p>
+        <form action="{{ url_for('settings.import_backup_json') }}" method="post" enctype="multipart/form-data" class="flex gap-2 items-center" style="flex-wrap: wrap;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="file" name="backup_file" accept=".json,application/json" class="form-control" style="max-width: 300px; padding: 0.4rem 0.6rem;" required>
+            <button type="submit" class="btn btn-secondary">
+                📤 Upload & Restore
+            </button>
+        </form>
     </div>
 </div>
 

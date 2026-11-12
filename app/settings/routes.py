@@ -13,8 +13,10 @@ Routes:
 import json
 import re
 from datetime import date, datetime, timezone
+from decimal import Decimal
 from flask import Blueprint, render_template, redirect, url_for, flash, request, Response
 from flask_login import login_required, current_user, logout_user
+from sqlalchemy import or_
 from app import db
 from app.models.user import User
 from app.models.category import Category
@@ -252,6 +254,93 @@ def backup_json():
             "Content-Disposition": f"attachment; filename=pennywise-backup-{date.today().isoformat()}.json"
         },
     )
+
+
+@settings_bp.route("/backup/import", methods=["POST"])
+@login_required
+def import_backup_json():
+    """
+    Restore or import user financial records from an uploaded JSON backup.
+    Validates schema, recreates custom categories, and inserts transactions.
+    """
+    file = request.files.get("backup_file")
+    if not file or not file.filename:
+        flash("Please select a valid PennyWise JSON backup file.", "warning")
+        return redirect(url_for("settings.index"))
+
+    try:
+        data = json.load(file)
+    except Exception:
+        flash("Invalid JSON format. Please upload a valid JSON file.", "danger")
+        return redirect(url_for("settings.index"))
+
+    if not isinstance(data, dict) or "transactions" not in data:
+        flash("Unrecognized backup structure. Missing 'transactions' array.", "danger")
+        return redirect(url_for("settings.index"))
+
+    # Map existing categories
+    cat_map = {}
+    cats = Category.query.filter(or_(Category.user_id == None, Category.user_id == current_user.id)).all()  # noqa: E711
+    for c in cats:
+        cat_map[c.name.lower()] = c
+
+    # Create missing custom categories
+    imported_cats = 0
+    for cat_data in data.get("custom_categories", []):
+        cat_name = cat_data.get("name", "").strip()
+        if cat_name and cat_name.lower() not in cat_map:
+            new_cat = Category(
+                name=cat_name,
+                category_type=cat_data.get("category_type", "expense"),
+                icon=cat_data.get("icon", "🏷️"),
+                color=cat_data.get("color", "#00e676"),
+                user_id=current_user.id,
+            )
+            db.session.add(new_cat)
+            db.session.flush()
+            cat_map[cat_name.lower()] = new_cat
+            imported_cats += 1
+
+    # Default category fallback
+    default_expense_cat = Category.query.filter_by(name="Other Expense").first()
+    default_income_cat = Category.query.filter_by(name="Other Income").first()
+
+    imported_count = 0
+    for item in data.get("transactions", []):
+        try:
+            amt = Decimal(str(item.get("amount", "0"))).quantize(Decimal("0.01"))
+            if amt <= 0:
+                continue
+            exp_date = date.fromisoformat(item["date"])
+            t_type = item.get("transaction_type", "expense")
+            cat_name = (item.get("category") or "").strip().lower()
+            category = cat_map.get(cat_name)
+            if not category:
+                category = default_income_cat if t_type == "income" else default_expense_cat
+
+            expense = Expense(
+                user_id=current_user.id,
+                category_id=category.id if category else None,
+                amount=amt,
+                currency=current_user.currency,
+                transaction_type=t_type,
+                description=item.get("description", "Imported Transaction")[:128],
+                expense_date=exp_date,
+                payment_method=item.get("payment_method", "Other"),
+                notes=item.get("notes"),
+            )
+            db.session.add(expense)
+            imported_count += 1
+        except Exception:
+            continue
+
+    db.session.commit()
+    flash(
+        f"Successfully imported {imported_count} transaction{'s' if imported_count != 1 else ''} "
+        f"and {imported_cats} custom categor{'ies' if imported_cats != 1 else 'y'} from backup!",
+        "success",
+    )
+    return redirect(url_for("expenses.index"))
 
 
 @settings_bp.route("/delete-account", methods=["POST"])
