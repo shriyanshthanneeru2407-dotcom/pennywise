@@ -3,11 +3,10 @@ tests/test_savings.py — Unit tests for savings goals and contributions.
 """
 
 from decimal import Decimal
-from datetime import date
 from app import db
 from app.models.user import User
 from app.models.savings import SavingsGoal, SavingsContribution
-from tests.conftest import login, logout
+from tests.conftest import login
 
 
 class TestSavingsGoals:

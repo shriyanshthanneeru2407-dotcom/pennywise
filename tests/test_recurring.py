@@ -2,9 +2,8 @@
 tests/test_recurring.py — Recurring subscriptions and expense tests for PennyWise.
 """
 
-from datetime import date, timedelta
+from datetime import date
 from decimal import Decimal
-import pytest
 from app import db
 from app.models.user import User
 from app.models.category import Category

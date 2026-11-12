@@ -197,7 +197,6 @@ class TestReceiptModel:
             assert db.session.get(Receipt, rcpt.id) is None
 
 
-
 class TestCustomCategoryEndpoints:
     def test_create_and_delete_custom_category(self, client, app):
         """User can create a custom category and delete it."""

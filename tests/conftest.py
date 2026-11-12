@@ -7,7 +7,6 @@ No data persists between tests.
 
 import pytest
 from app import create_app, db as _db
-from app.models.user import User
 from app.models.category import Category, DEFAULT_CATEGORIES
 
 
@@ -79,4 +78,3 @@ def login(client, email, password):
 def logout(client):
     """Helper to log out."""
     return client.post("/auth/logout", follow_redirects=True)
-

@@ -6,10 +6,9 @@ KEY SECURITY TEST (Section 54 of spec):
   User B attempts /expenses/100/edit → must be rejected (404).
 """
 
-import pytest
 from datetime import date
 from decimal import Decimal
-from tests.conftest import login, logout
+from tests.conftest import login
 from app.models.user import User
 from app.models.expense import Expense
 from app.models.category import Category

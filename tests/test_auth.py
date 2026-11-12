@@ -10,7 +10,6 @@ Tests:
   - Unauthenticated redirect
 """
 
-import pytest
 from tests.conftest import login, logout
 from app.models.user import User
 from app import db
@@ -188,7 +187,6 @@ class TestUnauthenticatedAccess:
         assert resp.status_code == 302
 
 
-
 class TestPasswordReset:
     def test_forgot_password_request_existing_user(self, client, app):
         """Requesting password reset for an existing user succeeds without errors."""
@@ -276,4 +274,3 @@ class TestEmailVerification:
         resp = client.get("/auth/verify-email/completely-bogus-token", follow_redirects=True)
         assert resp.status_code == 200
         assert b"expired or is invalid" in resp.data
-

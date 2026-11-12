@@ -11,7 +11,6 @@ Covers:
 
 from datetime import date
 from decimal import Decimal
-import pytest
 from app import db
 from app.models.user import User
 from app.models.budget import Budget, CategoryBudget

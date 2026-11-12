@@ -10,7 +10,9 @@ Routes:
   POST /settings/delete-account → Delete account (with confirmation)
 """
 
+import json
 import re
+from datetime import date, datetime, timezone
 from flask import Blueprint, render_template, redirect, url_for, flash, request, Response
 from flask_login import login_required, current_user, logout_user
 from app import db
@@ -204,6 +206,50 @@ def export_expenses():
         mimetype="text/csv",
         headers={
             "Content-Disposition": "attachment; filename=pennywise-transactions.csv"
+        },
+    )
+
+
+@settings_bp.route("/backup/json")
+@login_required
+def backup_json():
+    """
+    Export all user financial records as an RFC 8259 JSON package
+    for data portability and offsite backup.
+    """
+    expenses = Expense.query.filter_by(user_id=current_user.id).order_by(Expense.expense_date.desc()).all()
+    categories = Category.query.filter_by(user_id=current_user.id).all()
+    payload = {
+        "version": "1.0",
+        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "user": {
+            "name": current_user.name,
+            "email": current_user.email,
+            "currency": current_user.currency,
+            "theme": current_user.theme,
+        },
+        "custom_categories": [
+            {"name": c.name, "category_type": c.category_type, "icon": c.icon, "color": c.color}
+            for c in categories
+        ],
+        "transactions": [
+            {
+                "date": e.expense_date.isoformat(),
+                "description": e.description,
+                "amount": str(e.amount),
+                "transaction_type": e.transaction_type,
+                "payment_method": e.payment_method,
+                "category": e.category.name if e.category else None,
+                "notes": e.notes,
+            }
+            for e in expenses
+        ],
+    }
+    return Response(
+        json.dumps(payload, indent=2),
+        mimetype="application/json",
+        headers={
+            "Content-Disposition": f"attachment; filename=pennywise-backup-{date.today().isoformat()}.json"
         },
     )
 

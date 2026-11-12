@@ -8,7 +8,6 @@ Verifies all calculations are correct, including edge cases:
   - Large numbers
 """
 
-import pytest
 from datetime import date
 from decimal import Decimal
 from app.models.user import User
@@ -120,7 +119,6 @@ class TestAnalytics:
         Must not divide by zero — should return change_pct = None.
         """
         user_id = self._make_user(db, app, "zero_prev@test.com")
-        today = date.today()
 
         # Only add current month expenses (no previous month)
         self._add_expense(app, user_id, "1000.00")
