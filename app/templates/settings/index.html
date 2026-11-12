@@ -22,7 +22,14 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="email">Email Address</label>
+                <div class="flex items-center justify-between" style="margin-bottom:0.35rem;">
+                    <label class="form-label" for="email" style="margin:0;">Email Address</label>
+                    {% if current_user.email_verified %}
+                        <span class="badge badge-success" style="font-size:0.7rem;padding:0.15rem 0.45rem;">Verified ✓</span>
+                    {% else %}
+                        <span class="badge badge-warning" style="font-size:0.7rem;padding:0.15rem 0.45rem;">Unverified</span>
+                    {% endif %}
+                </div>
                 <input type="email" id="email" name="email" class="form-control"
                        value="{{ current_user.email }}" required maxlength="254">
             </div>

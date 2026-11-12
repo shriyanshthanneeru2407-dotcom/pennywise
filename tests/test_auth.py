@@ -249,3 +249,31 @@ class TestGoogleOAuth:
         assert "accounts.google.com" in resp.location
         assert "client_id=test-client-id-123.apps.googleusercontent.com" in resp.location
         assert "state=" in resp.location
+
+
+class TestEmailVerification:
+    def test_verify_email_with_valid_token(self, client, app):
+        """Valid cryptographic token marks user email as verified."""
+        with app.app_context():
+            user = User(name="Unverified User", email="unverified@example.com", email_verified=False)
+            user.set_password("SecretPass123!")
+            db.session.add(user)
+            db.session.commit()
+
+            from itsdangerous import URLSafeTimedSerializer
+            s = URLSafeTimedSerializer(app.config["SECRET_KEY"])
+            token = s.dumps("unverified@example.com", salt="email-verification-salt")
+
+        resp = client.get(f"/auth/verify-email/{token}", follow_redirects=True)
+        assert resp.status_code == 200
+        assert b"successfully verified" in resp.data
+
+        with app.app_context():
+            updated = User.query.filter_by(email="unverified@example.com").first()
+            assert updated.email_verified is True
+
+    def test_verify_email_with_invalid_token(self, client):
+        resp = client.get("/auth/verify-email/completely-bogus-token", follow_redirects=True)
+        assert resp.status_code == 200
+        assert b"expired or is invalid" in resp.data
+

@@ -11,7 +11,7 @@ Security design:
 """
 
 import re
-from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature, BadSignature
 from flask import (
     Blueprint,
     render_template,
@@ -313,6 +313,38 @@ def reset_password(token):
         return redirect(url_for("auth.login"))
 
     return render_template("auth/reset_password.html", token=token)
+
+
+@auth_bp.route("/verify-email/<token>")
+def verify_email(token):
+    """Verify email address using a cryptographic token."""
+    s = _get_reset_serializer()
+    try:
+        email = s.loads(token, salt="email-verification-salt", max_age=86400 * 3)
+    except (SignatureExpired, BadTimeSignature, BadSignature):
+        flash("The verification link has expired or is invalid.", "danger")
+        return redirect(url_for("auth.login"))
+
+    user = User.query.filter_by(email=email).first_or_404()
+    user.email_verified = True
+    db.session.commit()
+
+    flash("Your email address has been successfully verified! ✅", "success")
+    if current_user.is_authenticated:
+        return redirect(url_for("settings.index"))
+    return redirect(url_for("auth.login"))
+
+
+@auth_bp.route("/resend-verification", methods=["POST"])
+@login_required
+def resend_verification():
+    """Generate and dispatch a new email verification link."""
+    s = _get_reset_serializer()
+    token = s.dumps(current_user.email, salt="email-verification-salt")
+    verify_url = url_for("auth.verify_email", token=token, _external=True)
+    current_app.logger.info(f"Email verification link for {current_user.email}: {verify_url}")
+    flash("A verification link has been generated! (Check server logs in dev mode)", "info")
+    return redirect(url_for("settings.index"))
 
 
 @auth_bp.route("/logout", methods=["POST"])

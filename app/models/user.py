@@ -27,6 +27,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(255), nullable=True)
     google_id = db.Column(db.String(100), unique=True, nullable=True, index=True)
     avatar_url = db.Column(db.String(255), nullable=True)
+    email_verified = db.Column(db.Boolean, default=True, nullable=False)
 
     # User preferences
     currency = db.Column(db.String(3), nullable=False, default="INR")
