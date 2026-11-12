@@ -186,3 +186,66 @@ class TestUnauthenticatedAccess:
         """Budget page requires login."""
         resp = client.get("/budget/", follow_redirects=False)
         assert resp.status_code == 302
+
+
+
+class TestPasswordReset:
+    def test_forgot_password_request_existing_user(self, client, app):
+        """Requesting password reset for an existing user succeeds without errors."""
+        with app.app_context():
+            u = User(name="Reset User", email="reset_me@example.com")
+            u.set_password("OldPassword123")
+            db.session.add(u)
+            db.session.commit()
+
+        resp = client.post("/auth/forgot-password", data={"email": "reset_me@example.com"}, follow_redirects=True)
+        assert resp.status_code == 200
+        assert b"password reset link" in resp.data.lower()
+
+    def test_reset_password_with_valid_token(self, client, app):
+        """User can successfully set a new password with a valid cryptographic token."""
+        from itsdangerous import URLSafeTimedSerializer
+        with app.app_context():
+            u = User(name="Token User", email="token_reset@example.com")
+            u.set_password("InitialPassword123")
+            db.session.add(u)
+            db.session.commit()
+
+            s = URLSafeTimedSerializer(app.config["SECRET_KEY"])
+            token = s.dumps("token_reset@example.com", salt="password-reset-salt")
+
+        # Submit new password
+        resp = client.post(
+            f"/auth/reset-password/{token}",
+            data={"password": "NewSecretPassword!", "confirm_password": "NewSecretPassword!"},
+            follow_redirects=True,
+        )
+        assert resp.status_code == 200
+        assert b"successfully updated" in resp.data.lower()
+
+        # Verify old password fails and new password works
+        with app.app_context():
+            user = User.query.filter_by(email="token_reset@example.com").first()
+            assert not user.check_password("InitialPassword123")
+            assert user.check_password("NewSecretPassword!")
+
+
+class TestGoogleOAuth:
+    def test_google_login_unconfigured_flash_warning(self, client, app):
+        """When Google OAuth is unconfigured or has placeholder, flashes guidance warning."""
+        app.config["GOOGLE_CLIENT_ID"] = ""
+        app.config["GOOGLE_CLIENT_SECRET"] = ""
+        resp = client.get("/auth/google", follow_redirects=True)
+        assert resp.status_code == 200
+        assert b"Google Sign-In is not yet configured" in resp.data
+
+    def test_google_login_redirect_when_configured(self, client, app):
+        """When Google OAuth is configured, redirects to Google Accounts OAuth endpoint with state."""
+        app.config["GOOGLE_CLIENT_ID"] = "test-client-id-123.apps.googleusercontent.com"
+        app.config["GOOGLE_CLIENT_SECRET"] = "test-client-secret-xyz"
+
+        resp = client.get("/auth/google", follow_redirects=False)
+        assert resp.status_code == 302
+        assert "accounts.google.com" in resp.location
+        assert "client_id=test-client-id-123.apps.googleusercontent.com" in resp.location
+        assert "state=" in resp.location

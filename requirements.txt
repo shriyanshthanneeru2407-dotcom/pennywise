@@ -23,8 +23,8 @@ python-dotenv==1.0.1
 # Date manipulation (relativedelta for recurring)
 python-dateutil==2.9.0
 
-# PostgreSQL adapter (production) — pure Python, no compilation required
-# Switch to psycopg2-binary if your server has pg_config available
+# PostgreSQL adapters (production)
+psycopg2-binary==2.9.13
 pg8000==1.31.2
 
 # Optional: S3-compatible storage for receipts

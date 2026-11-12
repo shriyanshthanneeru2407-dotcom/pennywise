@@ -15,29 +15,47 @@ load_dotenv()
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
+try:
+    import psycopg2
+    HAS_PSYCOPG2 = True
+except ImportError:
+    HAS_PSYCOPG2 = False
+
+
 def _normalize_db_url(raw_url: str) -> str:
-    """Normalize database URL for SQLAlchemy and pure-python pg8000 driver."""
+    """Normalize database URL for SQLAlchemy, supporting both psycopg2 and pg8000."""
     if not raw_url:
         return ""
     if raw_url.startswith("postgres://"):
-        raw_url = raw_url.replace("postgres://", "postgresql+pg8000://", 1)
-    elif raw_url.startswith("postgresql://"):
+        raw_url = raw_url.replace("postgres://", "postgresql://", 1)
+    
+    if not HAS_PSYCOPG2 and raw_url.startswith("postgresql://") and not raw_url.startswith("postgresql+"):
         raw_url = raw_url.replace("postgresql://", "postgresql+pg8000://", 1)
     return raw_url
 
 
 def _get_engine_options(db_url: str) -> dict:
-    """Build engine options such as SSL context for PostgreSQL / Supabase pooler."""
-    if "pg8000" in db_url or "postgresql" in db_url:
+    """Build engine options for PostgreSQL / Supabase pooler."""
+    options = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+    }
+    if "pg8000" in db_url:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
-        return {
-            "connect_args": {"ssl_context": ctx},
-            "pool_pre_ping": True,
-            "pool_recycle": 300,
+        options["connect_args"] = {"ssl_context": ctx}
+    elif "postgresql" in db_url:
+        # For psycopg2 on poolers, keepalives prevent idle disconnects
+        options["connect_args"] = {
+            "keepalives": 1,
+            "keepalives_idle": 30,
+            "keepalives_interval": 10,
+            "keepalives_count": 5,
         }
-    return {}
+    else:
+        return {}
+    return options
 
 
 class Config:
