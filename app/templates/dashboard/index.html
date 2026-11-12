@@ -23,9 +23,14 @@
             {{ today.strftime('%B %Y') }} — {{ summary.count }} transaction{{ 's' if summary.count != 1 else '' }} this month
         </p>
     </div>
-    <a href="{{ url_for('expenses.new') }}" class="btn btn-primary hide-mobile">
-        + New Transaction
-    </a>
+    <div class="flex items-center gap-2">
+        <button type="button" onclick="openProductTour()" class="btn btn-secondary btn-sm" style="display:flex;align-items:center;gap:0.4rem;">
+            <span>💡</span> Tour
+        </button>
+        <a href="{{ url_for('expenses.new') }}" class="btn btn-primary hide-mobile">
+            + New Transaction
+        </a>
+    </div>
 </div>
 
 {# ---- Cash Flow Summary Cards ---- #}
@@ -292,6 +297,79 @@
         </div>
     </div>
 </div>
+
+<!-- Interactive Product Tour Modal -->
+<div id="tourModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;padding:1.5rem;">
+    <div class="card" style="max-width:540px;width:100%;box-shadow:0 0 30px rgba(0,230,118,0.25);border:1px solid rgba(0,230,118,0.3);position:relative;padding:1.75rem;background:var(--surface);">
+        <button onclick="closeProductTour()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;line-height:1;">&times;</button>
+        
+        <div id="tourStep1" class="tour-step">
+            <div style="font-size:2.5rem;margin-bottom:0.75rem;">⚖️</div>
+            <h3 style="font-size:1.25rem;margin-bottom:0.5rem;color:var(--text);">Two-Way Cash Flow Tracking</h3>
+            <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;">
+                PennyWise records both <strong>Inflows</strong> (Salary, Freelance, Investments) and <strong>Outflows</strong> (11 categorized expense streams), calculating your true Available Net Balance:
+            </p>
+            <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:0.75rem;margin:1rem 0;font-size:0.85rem;color:var(--primary);text-align:center;font-weight:600;border:1px solid rgba(0,230,118,0.2);">
+                Available Balance = Income − Expenses − Savings
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:1.5rem;">
+                <button type="button" onclick="nextTourStep(2)" class="btn btn-primary btn-sm">Next &rarr;</button>
+            </div>
+        </div>
+
+        <div id="tourStep2" class="tour-step" style="display:none;">
+            <div style="font-size:2.5rem;margin-bottom:0.75rem;">🌍</div>
+            <h3 style="font-size:1.25rem;margin-bottom:0.5rem;color:var(--text);">10-Currency Engine with Precision</h3>
+            <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;">
+                Switch seamlessly between <strong>10 global currencies</strong>: INR (₹), USD ($), EUR (€), GBP (£), CAD (CA$), AUD (A$), JPY (¥), AED (د.إ), SGD (S$), and CHF (CHF). All calculations use Python's <code>Decimal</code> without floating-point drift.
+            </p>
+            <div style="display:flex;justify-content:space-between;margin-top:1.5rem;">
+                <button type="button" onclick="nextTourStep(1)" class="btn btn-secondary btn-sm">&larr; Back</button>
+                <button type="button" onclick="nextTourStep(3)" class="btn btn-primary btn-sm">Next &rarr;</button>
+            </div>
+        </div>
+
+        <div id="tourStep3" class="tour-step" style="display:none;">
+            <div style="font-size:2.5rem;margin-bottom:0.75rem;">🎯</div>
+            <h3 style="font-size:1.25rem;margin-bottom:0.5rem;color:var(--text);">Smart Budget Threshold Alerts</h3>
+            <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;">
+                Set monthly spending limits and category budgets. Automated in-app notifications and color badges alert you at <strong>50%</strong> (on track), <strong>80%</strong> (warning), and <strong>100%</strong> (budget exceeded).
+            </p>
+            <div style="display:flex;justify-content:space-between;margin-top:1.5rem;">
+                <button type="button" onclick="nextTourStep(2)" class="btn btn-secondary btn-sm">&larr; Back</button>
+                <button type="button" onclick="nextTourStep(4)" class="btn btn-primary btn-sm">Next &rarr;</button>
+            </div>
+        </div>
+
+        <div id="tourStep4" class="tour-step" style="display:none;">
+            <div style="font-size:2.5rem;margin-bottom:0.75rem;">🏦</div>
+            <h3 style="font-size:1.25rem;margin-bottom:0.5rem;color:var(--text);">Savings Vault & Subscriptions</h3>
+            <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;">
+                Grow dedicated funds for goals like an <em>Emergency Fund</em> or <em>Travel</em>. Manage recurring subscriptions with auto-advancing due dates, printable statements, and RFC 4180 CSV exports.
+            </p>
+            <div style="display:flex;justify-content:space-between;margin-top:1.5rem;">
+                <button type="button" onclick="nextTourStep(3)" class="btn btn-secondary btn-sm">&larr; Back</button>
+                <button type="button" onclick="closeProductTour()" class="btn btn-primary btn-sm">Got It! 🚀</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openProductTour() {
+    document.getElementById('tourModal').style.display = 'flex';
+    nextTourStep(1);
+}
+function closeProductTour() {
+    document.getElementById('tourModal').style.display = 'none';
+}
+function nextTourStep(step) {
+    for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById('tourStep' + i);
+        if (el) el.style.display = (i === step) ? 'block' : 'none';
+    }
+}
+</script>
 
 {% endblock %}
 
