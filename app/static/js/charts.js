@@ -42,6 +42,8 @@
             .trim();
     }
 
+    const CURR = window.USER_CURRENCY_SYMBOL || "₹";
+
     // ---- 1. Category Doughnut Chart ----
     async function initCategoryChart() {
         const canvas = document.getElementById("categoryChart");
@@ -86,7 +88,7 @@
                                 label: (ctx) => {
                                     const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
                                     const pct = ((ctx.raw / total) * 100).toFixed(1);
-                                    return ` ₹${ctx.raw.toLocaleString("en-IN")} (${pct}%)`;
+                                    return ` ${CURR}${ctx.raw.toLocaleString()} (${pct}%)`;
                                 },
                             },
                         },
@@ -146,7 +148,7 @@
                             ticks: {
                                 font: { size: 11 },
                                 color: getCssVar("--text-muted"),
-                                callback: (val) => "₹" + val.toLocaleString("en-IN"),
+                                callback: (val) => CURR + val.toLocaleString(),
                             },
                         },
                     },
@@ -157,7 +159,7 @@
                             ...CHART_DEFAULTS.plugins.tooltip,
                             callbacks: {
                                 label: (ctx) =>
-                                    ` ₹${ctx.raw.toLocaleString("en-IN")}`,
+                                    ` ${CURR}${ctx.raw.toLocaleString()}`,
                             },
                         },
                     },
@@ -212,7 +214,7 @@
                             ticks: {
                                 font: { size: 11 },
                                 color: getCssVar("--text-muted"),
-                                callback: (val) => "₹" + val.toLocaleString("en-IN"),
+                                callback: (val) => CURR + val.toLocaleString(),
                             },
                         },
                     },
@@ -223,7 +225,7 @@
                             ...CHART_DEFAULTS.plugins.tooltip,
                             callbacks: {
                                 label: (ctx) =>
-                                    ` ₹${ctx.raw.toLocaleString("en-IN")}`,
+                                    ` ${CURR}${ctx.raw.toLocaleString()}`,
                             },
                         },
                     },
@@ -275,7 +277,7 @@
                                 label: (ctx) => {
                                     const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
                                     const pct = ((ctx.raw / total) * 100).toFixed(1);
-                                    return ` ₹${ctx.raw.toLocaleString("en-IN")} (${pct}%)`;
+                                    return ` ${CURR}${ctx.raw.toLocaleString()} (${pct}%)`;
                                 },
                             },
                         },
@@ -321,7 +323,7 @@
                             ticks: {
                                 color: getCssVar("--text-muted"),
                                 font: { size: 11 },
-                                callback: (val) => "₹" + val.toLocaleString("en-IN"),
+                                callback: (val) => CURR + val.toLocaleString(),
                             },
                         },
                     },
