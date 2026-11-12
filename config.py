@@ -40,10 +40,14 @@ def _normalize_db_url(raw_url: str) -> str:
 
 
 def _get_engine_options(db_url: str) -> dict:
-    """Build engine options for PostgreSQL / Supabase pooler."""
+    """Build engine options for PostgreSQL / Supabase pooler on serverless runtime."""
+    if not db_url or "sqlite" in db_url:
+        return {}
+
+    from sqlalchemy.pool import NullPool
+
     options = {
-        "pool_pre_ping": True,
-        "pool_recycle": 300,
+        "poolclass": NullPool,
     }
     if "pg8000" in db_url:
         ctx = ssl.create_default_context()
@@ -58,8 +62,6 @@ def _get_engine_options(db_url: str) -> dict:
             "keepalives_interval": 10,
             "keepalives_count": 5,
         }
-    else:
-        return {}
     return options
 
 
