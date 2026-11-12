@@ -305,6 +305,30 @@
     </div>
 </div>
 
+<!-- Keyboard Shortcuts Modal (?) -->
+<div class="modal-overlay" id="shortcutsModalOverlay" role="dialog" aria-modal="true" aria-labelledby="shortcutsTitle">
+    <div class="modal" style="max-width:480px;background:var(--surface);border:1px solid var(--border);">
+        <div class="flex items-center justify-between" style="margin-bottom:1rem;">
+            <h3 class="modal-title" id="shortcutsTitle" style="margin:0;font-size:1.1rem;">⌨️ Keyboard Shortcuts</h3>
+            <button type="button" class="btn btn-ghost btn-xs" onclick="document.getElementById('shortcutsModalOverlay').classList.remove('open')" style="font-size:1.1rem;padding:0.2rem 0.5rem;">✕</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.6rem;font-size:0.875rem;">
+            <div class="flex items-center justify-between"><span class="text-muted">Command Palette</span><kbd class="badge badge-gray">⌘K / Ctrl+K</kbd></div>
+            <div class="flex items-center justify-between"><span class="text-muted">Show Shortcuts Help</span><kbd class="badge badge-gray">?</kbd></div>
+            <div class="flex items-center justify-between"><span class="text-muted">Add New Transaction</span><kbd class="badge badge-gray">N</kbd></div>
+            <div class="flex items-center justify-between"><span class="text-muted">Dashboard</span><kbd class="badge badge-gray">D</kbd></div>
+            <div class="flex items-center justify-between"><span class="text-muted">All Transactions</span><kbd class="badge badge-gray">T</kbd></div>
+            <div class="flex items-center justify-between"><span class="text-muted">Budgets</span><kbd class="badge badge-gray">B</kbd></div>
+            <div class="flex items-center justify-between"><span class="text-muted">Savings Goals</span><kbd class="badge badge-gray">S</kbd></div>
+            <div class="flex items-center justify-between"><span class="text-muted">Recurring Bills</span><kbd class="badge badge-gray">R</kbd></div>
+            <div class="flex items-center justify-between"><span class="text-muted">Insights & Velocity</span><kbd class="badge badge-gray">I</kbd></div>
+            <div class="flex items-center justify-between"><span class="text-muted">Reports & CSV Export</span><kbd class="badge badge-gray">P</kbd></div>
+            <div class="flex items-center justify-between"><span class="text-muted">Toggle Theme</span><kbd class="badge badge-gray">U</kbd></div>
+            <div class="flex items-center justify-between"><span class="text-muted">Close Active Modal</span><kbd class="badge badge-gray">ESC</kbd></div>
+        </div>
+    </div>
+</div>
+
 <!-- Scripts -->
 <script>
     window.USER_CURRENCY_SYMBOL = "{{ current_user.currency_symbol if current_user.is_authenticated else '₹' }}";

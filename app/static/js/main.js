@@ -334,14 +334,64 @@
             });
         }
 
-        // Global hotkeys: Cmd+K / Ctrl+K
+        // Global hotkeys: Cmd+K / Ctrl+K & Single-key shortcuts
         document.addEventListener("keydown", (e) => {
+            const tag = e.target.tagName ? e.target.tagName.toLowerCase() : "";
+            const isInput = tag === "input" || tag === "textarea" || tag === "select" || e.target.isContentEditable;
+
             if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
                 e.preventDefault();
                 overlay.classList.contains("open") ? closePalette() : openPalette();
-            } else if (e.key === "Escape" && overlay.classList.contains("open")) {
-                closePalette();
+                return;
             }
+
+            if (e.key === "Escape") {
+                if (overlay.classList.contains("open")) closePalette();
+                const shortcutsModal = document.getElementById("shortcutsModalOverlay");
+                if (shortcutsModal && shortcutsModal.classList.contains("open")) {
+                    shortcutsModal.classList.remove("open");
+                }
+                return;
+            }
+
+            // Shortcuts when not in text input
+            if (!isInput && !e.metaKey && !e.ctrlKey && !e.altKey) {
+                const k = e.key.toLowerCase();
+                const shortcutsModal = document.getElementById("shortcutsModalOverlay");
+                if (e.key === "?") {
+                    e.preventDefault();
+                    if (shortcutsModal) shortcutsModal.classList.toggle("open");
+                } else if (k === "n") {
+                    window.location.href = "/expenses/new";
+                } else if (k === "d") {
+                    window.location.href = "/dashboard";
+                } else if (k === "t") {
+                    window.location.href = "/expenses";
+                } else if (k === "b") {
+                    window.location.href = "/budget";
+                } else if (k === "s") {
+                    window.location.href = "/savings";
+                } else if (k === "r") {
+                    window.location.href = "/recurring";
+                } else if (k === "i") {
+                    window.location.href = "/insights";
+                } else if (k === "p") {
+                    window.location.href = "/reports";
+                } else if (k === "u") {
+                    const toggle = document.getElementById("themeToggle");
+                    if (toggle) toggle.click();
+                }
+            }
+        });
+    }
+
+    // ---- Network Status (Online / Offline) ----
+    function initNetworkStatus() {
+        window.addEventListener("offline", () => {
+            if (window.showToast) window.showToast("⚠️ Network disconnected. Working in offline mode.", "warning");
+        });
+        window.addEventListener("online", () => {
+            if (window.showToast) window.showToast("✓ Internet connection restored.", "success");
         });
     }
 
@@ -356,6 +406,7 @@
         initFileInputs();
         initAmountFormatting();
         initCommandPalette();
+        initNetworkStatus();
 
         // Apply theme from body attribute (set by Jinja from user preference)
         const bodyTheme = document.body.dataset.theme;
