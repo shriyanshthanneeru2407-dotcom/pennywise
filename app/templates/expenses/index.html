@@ -209,6 +209,9 @@
             <div class="flex items-center justify-between">
                 <span class="badge badge-gray">{{ expense.payment_method }}</span>
                 <div class="action-buttons">
+                    {% if expense.receipt %}
+                    <a href="{{ url_for('expenses.serve_receipt', key=expense.receipt.storage_key) }}" class="btn btn-ghost btn-sm" target="_blank" title="Receipt">🧾</a>
+                    {% endif %}
                     <a href="{{ url_for('expenses.edit', expense_id=expense.id) }}" class="btn btn-ghost btn-sm">✏️ Edit</a>
                     <form action="{{ url_for('expenses.delete', expense_id=expense.id) }}"
                           method="post" style="margin:0;"
