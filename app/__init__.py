@@ -90,36 +90,37 @@ def create_app(config_name: str = None) -> Flask:
     # --- Import models so Flask-Migrate can detect them ---
     from app.models import user, expense, category, budget, recurring, receipt, savings  # noqa: F401
 
-    # Ensure tables and default data exist
+    # Ensure tables and default data exist (immediate for SQLite/testing; PostgreSQL tables are pre-created)
     with app.app_context():
         try:
-            db.create_all()
+            if db.engine.dialect.name == "sqlite":
+                db.create_all()
 
-            # Seed system categories if none exist
-            from app.models.category import Category, DEFAULT_CATEGORIES
-            try:
-                if not Category.query.filter_by(user_id=None).first():
-                    for cat_data in DEFAULT_CATEGORIES:
-                        db.session.add(Category(user_id=None, **cat_data))
-                    db.session.commit()
-            except Exception:
-                db.session.rollback()
+                # Seed system categories if none exist
+                from app.models.category import Category, DEFAULT_CATEGORIES
+                try:
+                    if not Category.query.filter_by(user_id=None).first():
+                        for cat_data in DEFAULT_CATEGORIES:
+                            db.session.add(Category(user_id=None, **cat_data))
+                        db.session.commit()
+                except Exception:
+                    db.session.rollback()
 
-            # Seed demo user if none exists
-            from app.models.user import User
-            try:
-                if not User.query.filter_by(email="demo@pennywise.app").first():
-                    demo_user = User(
-                        name="PennyWise Demo",
-                        email="demo@pennywise.app",
-                        currency="INR",
-                        theme="dark",
-                    )
-                    demo_user.set_password("demo1234")
-                    db.session.add(demo_user)
-                    db.session.commit()
-            except Exception:
-                db.session.rollback()
+                # Seed demo user if none exists
+                from app.models.user import User
+                try:
+                    if not User.query.filter_by(email="demo@pennywise.app").first():
+                        demo_user = User(
+                            name="PennyWise Demo",
+                            email="demo@pennywise.app",
+                            currency="INR",
+                            theme="dark",
+                        )
+                        demo_user.set_password("demo1234")
+                        db.session.add(demo_user)
+                        db.session.commit()
+                except Exception:
+                    db.session.rollback()
         except Exception as e:
             app.logger.warning(f"Database setup deferred or connection not ready: {e}")
 
