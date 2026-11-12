@@ -76,6 +76,7 @@ def create_app(config_name: str = None) -> Flask:
     from app.settings.routes import settings_bp
     from app.notifications.routes import notifications_bp
     from app.main.routes import main_bp
+    from app.penny.routes import penny_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")
@@ -88,6 +89,7 @@ def create_app(config_name: str = None) -> Flask:
     app.register_blueprint(reports_bp, url_prefix="/reports")
     app.register_blueprint(settings_bp, url_prefix="/settings")
     app.register_blueprint(notifications_bp, url_prefix="/notifications")
+    app.register_blueprint(penny_bp, url_prefix="/penny")
 
     @app.context_processor
     def inject_notifications():

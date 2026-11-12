@@ -117,8 +117,9 @@ def build_financial_context(user) -> str:
                 cat_name = f"{cat.icon} {cat.name}" if cat else f"Category {b.category_id}"
                 pct = (float(spent) / float(b.monthly_limit) * 100) if b.monthly_limit else 0
                 status = "⚠️ OVER BUDGET" if spent > b.monthly_limit else ("🟡 Near limit" if pct > 80 else "✅ OK")
+                sym = user.currency_symbol
                 lines.append(
-                    f"  {cat_name}: {user.currency_symbol}{spent:,.2f} / {user.currency_symbol}{b.monthly_limit:,.2f} ({pct:.0f}%) {status}"
+                    f"  {cat_name}: {sym}{spent:,.2f} / {sym}{b.monthly_limit:,.2f} ({pct:.0f}%) {status}"
                 )
             lines.append("")
     except Exception:
@@ -131,8 +132,9 @@ def build_financial_context(user) -> str:
             lines.append("=== SAVINGS GOALS ===")
             for g in goals:
                 pct = (float(g.current_amount) / float(g.target_amount) * 100) if g.target_amount else 0
+                sym = user.currency_symbol
                 lines.append(
-                    f"  🏦 {g.name}: {user.currency_symbol}{g.current_amount:,.2f} / {user.currency_symbol}{g.target_amount:,.2f} ({pct:.0f}%)"
+                    f"  🏦 {g.title}: {sym}{g.current_amount:,.2f} / {sym}{g.target_amount:,.2f} ({pct:.0f}%)"
                 )
             lines.append("")
     except Exception:

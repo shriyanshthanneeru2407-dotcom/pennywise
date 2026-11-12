@@ -43,7 +43,7 @@
     <div class="sidebar-brand">
         <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="PennyWise Logo" class="brand-logo-img logo-continuous-glow">
         <a href="{{ url_for('dashboard.index') }}" class="brand-name" style="text-decoration:none;font-weight:800;letter-spacing:-0.02em;">
-            Penny<span style="color:var(--primary);text-shadow:0 0 10px rgba(0,230,118,0.5);">Wise</span>
+            Penny<span style="background: linear-gradient(135deg, #38bdf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Wise</span>
         </a>
     </div>
 
@@ -56,6 +56,14 @@
                aria-current="{% if request.endpoint and request.endpoint.startswith('dashboard') %}page{% endif %}">
                 <span class="nav-icon" aria-hidden="true">🏠</span>
                 Dashboard
+            </a>
+            <a href="{{ url_for('penny.index') }}"
+               class="nav-item {% if request.endpoint and request.endpoint.startswith('penny') %}active{% endif %}"
+               style="background: linear-gradient(90deg, rgba(99,102,241,0.12), transparent); border-left: 2px solid #818cf8; margin-top: 4px;">
+                <span class="nav-icon" aria-hidden="true" style="display:inline-flex;align-items:center;">
+                    <img src="{{ url_for('static', filename='images/penny-avatar.jpg') }}" alt="Penny" style="width:20px;height:20px;border-radius:50%;object-fit:cover;border:1px solid #818cf8;box-shadow: 0 0 6px rgba(129,140,248,0.5);">
+                </span>
+                <span style="font-weight:600;background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Ask Penny ✨</span>
             </a>
         </div>
 

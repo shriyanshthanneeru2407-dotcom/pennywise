@@ -124,7 +124,7 @@ img { max-width: 100%; height: auto; display: block; }
     height: 32px;
     border-radius: 8px;
     object-fit: cover;
-    border: 1px solid rgba(0, 230, 118, 0.4);
+    border: 1px solid rgba(56, 189, 248, 0.5);
     flex-shrink: 0;
     transition: transform var(--transition);
 }
@@ -135,12 +135,12 @@ img { max-width: 100%; height: auto; display: block; }
 
 @keyframes continuousNeonPulse {
     0%, 100% {
-        box-shadow: 0 0 10px rgba(0, 230, 118, 0.4), 0 0 18px rgba(0, 230, 118, 0.2);
-        filter: drop-shadow(0 0 4px rgba(0, 230, 118, 0.4));
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.4), 0 0 18px rgba(168, 85, 247, 0.25);
+        filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.4));
     }
     50% {
-        box-shadow: 0 0 18px rgba(0, 230, 118, 0.8), 0 0 28px rgba(0, 242, 152, 0.45);
-        filter: drop-shadow(0 0 8px rgba(0, 230, 118, 0.85));
+        box-shadow: 0 0 18px rgba(56, 189, 248, 0.8), 0 0 28px rgba(168, 85, 247, 0.5);
+        filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.85));
     }
 }
 
@@ -161,12 +161,11 @@ img { max-width: 100%; height: auto; display: block; }
     border-radius: 36px;
     background: conic-gradient(
         from 0deg,
-        #00e676,
-        #00f298,
-        #00b0ff,
-        #00e676,
-        #69f0ae,
-        #00e676
+        #00d2ff,
+        #3a7bd5,
+        #8b5cf6,
+        #d946ef,
+        #00d2ff
     );
     filter: blur(18px);
     opacity: 0.75;
@@ -197,10 +196,10 @@ img { max-width: 100%; height: auto; display: block; }
     height: 100px;
     border-radius: 26px;
     object-fit: cover;
-    border: 2px solid rgba(0, 230, 118, 0.6);
+    border: 2px solid rgba(56, 189, 248, 0.6);
     box-shadow: 
-        0 0 30px rgba(0, 230, 118, 0.6),
-        0 0 60px rgba(0, 242, 152, 0.35);
+        0 0 30px rgba(56, 189, 248, 0.6),
+        0 0 60px rgba(168, 85, 247, 0.4);
     animation: infiniteLogoFloat 4s ease-in-out infinite, infiniteLogoBreath 3s ease-in-out infinite alternate;
 }
 
@@ -215,9 +214,14 @@ img { max-width: 100%; height: auto; display: block; }
 
 @keyframes infiniteLogoBreath {
     0% {
-        box-shadow: 0 0 25px rgba(0, 230, 118, 0.5), 0 0 50px rgba(0, 242, 152, 0.25);
-        border-color: rgba(0, 230, 118, 0.5);
+        box-shadow: 0 0 25px rgba(56, 189, 248, 0.5), 0 0 50px rgba(168, 85, 247, 0.3);
+        border-color: rgba(56, 189, 248, 0.5);
     }
+    100% {
+        box-shadow: 0 0 35px rgba(168, 85, 247, 0.75), 0 0 65px rgba(56, 189, 248, 0.5);
+        border-color: rgba(168, 85, 247, 0.75);
+    }
+}
     100% {
         box-shadow: 0 0 45px rgba(0, 230, 118, 0.9), 0 0 85px rgba(0, 242, 152, 0.5);
         border-color: rgba(0, 242, 152, 0.9);

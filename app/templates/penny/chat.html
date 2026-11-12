@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+{% block title %}Penny — Your Finance Assistant{% endblock %}
+{% block page_title %}Ask Penny ✨{% endblock %}
+
+{% block head %}
+<style>
+/* ── Penny Chat Page ───────────────────────────────────────────── */
+.penny-chat-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 130px);
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+/* Welcome banner */
+.penny-welcome {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.08) 100%);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    flex-shrink: 0;
+}
+.penny-avatar-lg {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(99,102,241,0.5);
+    box-shadow: 0 0 16px rgba(99,102,241,0.4);
+    flex-shrink: 0;
+}
+.penny-welcome-text h3 {
+    margin: 0 0 0.2rem;
+    font-size: 1rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.penny-welcome-text p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Chat messages area */
+.penny-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99,102,241,0.3) transparent;
+}
+.penny-messages::-webkit-scrollbar { width: 4px; }
+.penny-messages::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.3); border-radius: 2px; }
+
+/* Individual message bubbles */
+.msg {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-end;
+    max-width: 85%;
+    animation: msgSlideIn 0.25s ease;
+}
+@keyframes msgSlideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.msg.user {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+.msg.penny {
+    align-self: flex-start;
+}
+
+.msg-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1.5px solid rgba(99,102,241,0.4);
+}
+.msg-avatar-user {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+
+.msg-bubble {
+    padding: 0.65rem 0.9rem;
+    border-radius: 16px;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    max-width: 100%;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+.msg.penny .msg-bubble {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+    color: var(--text);
+}
+.msg.user .msg-bubble {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+/* Typing indicator */
+.typing-indicator {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 0.65rem 0.9rem;
+}
+.typing-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    animation: typingBounce 1.4s infinite ease-in-out;
+}
+.typing-dot:nth-child(1) { animation-delay: 0s; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* Input bar */
+.penny-input-bar {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.penny-input {
+    flex: 1;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 0.65rem 1.1rem;
+    font-size: 0.9rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+    min-height: 44px;
+    max-height: 120px;
+    font-family: inherit;
+}
+.penny-input:focus {
+    border-color: rgba(99,102,241,0.6);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+}
+.penny-send-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.15s, opacity 0.15s;
+    color: white;
+    font-size: 1.1rem;
+}
+.penny-send-btn:hover { transform: scale(1.08); }
+.penny-send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* Quick suggestions */
+.penny-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+    flex-shrink: 0;
+}
+.penny-suggestion-chip {
+    background: var(--surface-2);
+    border: 1px solid rgba(99,102,241,0.3);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+.penny-suggestion-chip:hover {
+    border-color: rgba(99,102,241,0.7);
+    color: var(--text);
+    background: rgba(99,102,241,0.1);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="penny-chat-wrapper">
+
+    <!-- Welcome banner -->
+    <div class="penny-welcome">
+        <img src="{{ url_for('static', filename='images/penny-avatar.jpg') }}"
+             alt="Penny" class="penny-avatar-lg">
+        <div class="penny-welcome-text">
+            <h3>Hi {{ current_user.name.split()[0] }}! I'm Penny ✨</h3>
+            <p>Your personal finance AI — ask me anything about your spending, budgets, or savings.</p>
+        </div>
+    </div>
+
+    <!-- Messages area -->
+    <div class="penny-messages" id="pennyMessages">
+        <!-- Initial greeting from Penny -->
+        <div class="msg penny" id="introMsg">
+            <img src="{{ url_for('static', filename='images/penny-avatar.jpg') }}"
+                 alt="Penny" class="msg-avatar">
+            <div class="msg-bubble">
+                Hey {{ current_user.name.split()[0] }}! 👋 I'm Penny, your smart finance assistant. I have access to your real financial data — transactions, budgets, savings goals, and more.<br><br>
+                What would you like to know today? 💰
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick suggestion chips -->
+    <div class="penny-suggestions" id="pennySuggestions">
+        <button class="penny-suggestion-chip" onclick="useSuggestion(this)">How much did I spend this month?</button>
+        <button class="penny-suggestion-chip" onclick="useSuggestion(this)">Which category am I overspending in?</button>
+        <button class="penny-suggestion-chip" onclick="useSuggestion(this)">How are my savings goals doing?</button>
+        <button class="penny-suggestion-chip" onclick="useSuggestion(this)">Give me a spending summary</button>
+        <button class="penny-suggestion-chip" onclick="useSuggestion(this)">Any budgets I'm close to hitting?</button>
+    </div>
+
+    <!-- Input bar -->
+    <div class="penny-input-bar">
+        <textarea
+            id="pennyInput"
+            class="penny-input"
+            placeholder="Ask Penny about your finances…"
+            rows="1"
+            maxlength="1000"
+            aria-label="Message to Penny"
+        ></textarea>
+        <button id="pennySendBtn" class="penny-send-btn" onclick="sendMessage()" aria-label="Send message">
+            ➤
+        </button>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const messagesEl   = document.getElementById('pennyMessages');
+const inputEl      = document.getElementById('pennyInput');
+const sendBtnEl    = document.getElementById('pennySendBtn');
+const suggestEl    = document.getElementById('pennySuggestions');
+const userInitial  = {{ current_user.name[0].upper()|tojson }};
+const csrfToken    = {{ csrf_token()|tojson }};
+
+let isWaiting = false;
+
+// Auto-resize textarea
+inputEl.addEventListener('input', () => {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+});
+
+// Send on Enter (Shift+Enter = newline)
+inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+function useSuggestion(el) {
+    inputEl.value = el.textContent;
+    inputEl.dispatchEvent(new Event('input'));
+    suggestEl.style.display = 'none';
+    sendMessage();
+}
+
+function appendMessage(role, text) {
+    const wrap = document.createElement('div');
+    wrap.className = `msg ${role}`;
+
+    if (role === 'penny') {
+        const img = document.createElement('img');
+        img.src = "{{ url_for('static', filename='images/penny-avatar.jpg') }}";
+        img.alt = 'Penny';
+        img.className = 'msg-avatar';
+        wrap.appendChild(img);
+    } else {
+        const av = document.createElement('div');
+        av.className = 'msg-avatar-user';
+        av.textContent = userInitial;
+        wrap.appendChild(av);
+    }
+
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.textContent = text;
+    wrap.appendChild(bubble);
+
+    messagesEl.appendChild(wrap);
+    scrollToBottom();
+    return wrap;
+}
+
+function appendTyping() {
+    const wrap = document.createElement('div');
+    wrap.className = 'msg penny';
+    wrap.id = 'typingIndicator';
+
+    const img = document.createElement('img');
+    img.src = "{{ url_for('static', filename='images/penny-avatar.jpg') }}";
+    img.alt = 'Penny';
+    img.className = 'msg-avatar';
+    wrap.appendChild(img);
+
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble typing-indicator';
+    bubble.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+    wrap.appendChild(bubble);
+
+    messagesEl.appendChild(wrap);
+    scrollToBottom();
+    return wrap;
+}
+
+function scrollToBottom() {
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+async function sendMessage() {
+    const text = inputEl.value.trim();
+    if (!text || isWaiting) return;
+
+    // Hide suggestions after first real message
+    suggestEl.style.display = 'none';
+
+    // Show user message
+    appendMessage('user', text);
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+
+    // Show typing
+    isWaiting = true;
+    sendBtnEl.disabled = true;
+    const typingEl = appendTyping();
+
+    try {
+        const res = await fetch('/penny/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({ message: text }),
+        });
+
+        const data = await res.json();
+        typingEl.remove();
+
+        if (data.reply) {
+            appendMessage('penny', data.reply);
+        } else if (data.error) {
+            appendMessage('penny', '⚠️ ' + data.error);
+        } else {
+            appendMessage('penny', '🤔 Something went wrong. Please try again!');
+        }
+    } catch (err) {
+        typingEl.remove();
+        appendMessage('penny', '🌐 Network error — please check your connection and try again.');
+    } finally {
+        isWaiting = false;
+        sendBtnEl.disabled = false;
+        inputEl.focus();
+        scrollToBottom();
+    }
+}
+
+// Auto-focus
+inputEl.focus();
+</script>
+{% endblock %}
