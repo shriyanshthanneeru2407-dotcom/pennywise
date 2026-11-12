@@ -22,6 +22,7 @@ from app.models.expense import Expense
 from app.models.category import Category
 from app.models.budget import Budget
 from app.models.savings import SavingsGoal, SavingsContribution
+from app.models.user import User
 
 
 def _safe_divide(numerator, denominator, default=Decimal("0")):
@@ -305,6 +306,9 @@ def get_insights(user_id: int) -> list:
     today = date.today()
     year, month = today.year, today.month
 
+    user = db.session.get(User, user_id)
+    symbol = user.currency_symbol if user else "₹"
+
     summary = get_monthly_summary(user_id, year, month)
     categories = get_category_totals(user_id, year, month)
     comparison = get_monthly_comparison(user_id)
@@ -314,7 +318,15 @@ def get_insights(user_id: int) -> list:
 
     # No data at all
     if summary["count"] == 0:
-        return [{"text": "Add a few expenses to see spending insights.", "type": "info"}]
+        return [{"text": "Add a few transactions to see spending insights.", "type": "info"}]
+
+    # Savings rate insight
+    if summary.get("savings_rate") is not None and summary.get("total_income", Decimal("0")) > 0:
+        rate = summary["savings_rate"]
+        observations.append({
+            "text": f"🌱 Your current savings rate is {rate}% of total income.",
+            "type": "success" if rate >= 20 else "info",
+        })
 
     # Largest category
     if categories:
@@ -328,7 +340,7 @@ def get_insights(user_id: int) -> list:
     if summary["avg_daily"] > 0:
         avg = summary["avg_daily"]
         observations.append({
-            "text": f"📅 Your average daily spending this month is {_format_amount(avg)}.",
+            "text": f"📅 Your average daily spending this month is {_format_amount(avg, symbol)}.",
             "type": "info",
         })
 
@@ -352,28 +364,28 @@ def get_insights(user_id: int) -> list:
             "type": "info",
         })
 
-    # Budget status
+    # Budget status (50%, 80%, 100% alerts)
     if summary["budget"] and summary["budget_pct"] is not None:
         pct = summary["budget_pct"]
         if pct >= 100:
             over = summary["total"] - summary["budget"]
             observations.append({
-                "text": f"🚨 You are ₹{over:,.2f} over your monthly budget.",
+                "text": f"🚨 You are {symbol}{over:,.2f} over your monthly budget limit.",
                 "type": "danger",
             })
-        elif pct >= 90:
+        elif pct >= 80:
             observations.append({
-                "text": f"⚠️ You have used {pct}% of your monthly budget. Approaching the limit.",
+                "text": f"⚠️ 80% threshold reached: You have consumed {pct}% of your monthly budget.",
                 "type": "warning",
             })
-        elif pct >= 75:
+        elif pct >= 50:
             observations.append({
-                "text": f"💡 You have used {pct}% of your monthly budget.",
-                "type": "warning",
+                "text": f"💡 50% threshold reached: You have consumed {pct}% of your monthly budget.",
+                "type": "info",
             })
         else:
             observations.append({
-                "text": f"✅ You have used {pct}% of your monthly budget. On track.",
+                "text": f"✅ Spending on track: {pct}% of your monthly budget used.",
                 "type": "success",
             })
     elif not summary["budget"]:
@@ -385,13 +397,13 @@ def get_insights(user_id: int) -> list:
     # Highest single expense
     if highest:
         observations.append({
-            "text": f"💸 Largest expense this month: {highest.description} — {_format_amount(highest.amount)}.",
+            "text": f"💸 Largest expense this month: {highest.description} — {_format_amount(highest.amount, symbol)}.",
             "type": "info",
         })
 
     return observations
 
 
-def _format_amount(amount) -> str:
-    """Simple amount formatter for insight strings."""
-    return f"₹{float(amount):,.2f}"
+def _format_amount(amount, symbol: str = "₹") -> str:
+    """Amount formatter for insight strings with native currency symbol."""
+    return f"{symbol}{float(amount):,.2f}"
