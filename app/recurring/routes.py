@@ -259,5 +259,17 @@ def log_expense(recurring_id):
     recurring.next_due_date = _advance_due_date(recurring.next_due_date, recurring.frequency)
     db.session.commit()
 
+    try:
+        from app.notifications.routes import create_notification
+        create_notification(
+            user_id=current_user.id,
+            title="Recurring Expense Logged",
+            message=f"{recurring.description} ({current_user.currency_symbol}{recurring.amount:,.2f}) was recorded. Next due date: {recurring.next_due_date.strftime('%d %b %Y')}.",
+            type_="info",
+            link="/expenses",
+        )
+    except Exception:
+        pass
+
     flash(f"Expense logged: {recurring.description}. Next due: {recurring.next_due_date.strftime('%d %b %Y')}.", "success")
     return redirect(url_for("recurring.index"))

@@ -126,7 +126,10 @@ def contribute(goal_id: int):
         return redirect(url_for("savings.index"))
 
     goal.current_amount += amount
+    completed_now = False
     if goal.current_amount >= goal.target_amount:
+        if goal.status != "completed":
+            completed_now = True
         goal.status = "completed"
 
     contrib = SavingsContribution(
@@ -137,6 +140,19 @@ def contribute(goal_id: int):
     )
     db.session.add(contrib)
     db.session.commit()
+
+    if completed_now:
+        try:
+            from app.notifications.routes import create_notification
+            create_notification(
+                user_id=current_user.id,
+                title="Savings Goal Completed! 🎉",
+                message=f"Congratulations! You reached 100% of your '{goal.title}' target ({current_user.currency_symbol}{goal.target_amount:,.2f})!",
+                type_="success",
+                link="/savings",
+            )
+        except Exception:
+            pass
 
     flash(f"Deposited {current_user.currency_symbol}{amount:,.2f} toward '{goal.title}'!", "success")
     return redirect(url_for("savings.index"))

@@ -313,6 +313,36 @@ def new():
             db.session.add(receipt)
 
         db.session.commit()
+
+        # Check if budget threshold crossed and trigger automated in-app alert
+        if data.get("transaction_type") == "expense":
+            try:
+                from app.services.analytics import get_monthly_summary
+                from app.notifications.routes import create_notification
+
+                summary = get_monthly_summary(
+                    current_user.id, data["expense_date"].year, data["expense_date"].month
+                )
+                pct = summary.get("budget_pct")
+                if pct and pct >= 100:
+                    create_notification(
+                        user_id=current_user.id,
+                        title="🚨 Budget Exceeded!",
+                        message=f"You have consumed {pct}% of your monthly budget limit.",
+                        type_="danger",
+                        link="/budget",
+                    )
+                elif pct and pct >= 80:
+                    create_notification(
+                        user_id=current_user.id,
+                        title="⚠️ 80% Budget Warning",
+                        message=f"You have consumed {pct}% of your monthly spending limit.",
+                        type_="warning",
+                        link="/budget",
+                    )
+            except Exception:
+                pass
+
         flash("Expense added successfully.", "success")
         return redirect(url_for("expenses.index"))
 
