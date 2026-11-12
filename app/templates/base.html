@@ -258,6 +258,10 @@
 <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
 <!-- Scripts -->
+<script>
+    window.USER_CURRENCY_SYMBOL = "{{ current_user.currency_symbol if current_user.is_authenticated else '₹' }}";
+    window.USER_CURRENCY = "{{ current_user.currency if current_user.is_authenticated else 'INR' }}";
+</script>
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% block scripts %}{% endblock %}
 

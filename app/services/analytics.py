@@ -366,6 +366,21 @@ def get_insights(user_id: int) -> list:
             "type": "info",
         })
 
+    # Category increase compared to previous month
+    prev_month = 12 if month == 1 else month - 1
+    prev_year = year - 1 if month == 1 else year
+    prev_cat_map = {c["id"]: c["total"] for c in get_category_totals(user_id, prev_year, prev_month)}
+    for cat in categories:
+        prev_amt = prev_cat_map.get(cat.get("id"), Decimal("0"))
+        if prev_amt > 0 and cat["total"] > prev_amt:
+            diff_pct = float((_safe_divide(cat["total"] - prev_amt, prev_amt) * 100).quantize(Decimal("0.1")))
+            if diff_pct >= 20.0:
+                observations.append({
+                    "text": f"📊 Increased spending in {cat['icon']} {cat['name']}: up by {diff_pct:.0f}% compared to last month.",
+                    "type": "warning",
+                })
+                break
+
     # Budget status (50%, 80%, 100% alerts)
     if summary["budget"] and summary["budget_pct"] is not None:
         pct = summary["budget_pct"]
@@ -390,9 +405,17 @@ def get_insights(user_id: int) -> list:
                 "text": f"✅ Spending on track: {pct}% of your monthly budget used.",
                 "type": "success",
             })
+
+        # Budget surplus recommendation
+        if summary.get("remaining") and summary["remaining"] > 0 and pct < 80:
+            observations.append({
+                "text": f"💡 You have a remaining surplus of {symbol}{summary['remaining']:,.2f}. Consider depositing it into your Savings Vault!",
+                "type": "success",
+            })
     elif not summary["budget"]:
+        recommended = int(summary["total"] * Decimal("1.1")) if summary["total"] > 0 else 50000
         observations.append({
-            "text": "💰 You haven't set a monthly budget. Set one to track your spending.",
+            "text": f"💡 Budget Recommendation: Consider setting a monthly limit of {symbol}{recommended:,} to track your cash flow.",
             "type": "info",
         })
 
