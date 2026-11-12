@@ -4,7 +4,7 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-00e676.svg?style=flat-square&logo=python)](https://www.python.org/)
 [![Flask 3.0](https://img.shields.io/badge/flask-3.0.3-00e676.svg?style=flat-square&logo=flask)](https://flask.palletsprojects.com/)
-[![Tests](https://img.shields.io/badge/pytest-56%20passed%20(100%25)-00e676.svg?style=flat-square&logo=pytest)](https://docs.pytest.org/)
+[![Tests](https://img.shields.io/badge/pytest-57%20passed%20(100%25)-00e676.svg?style=flat-square&logo=pytest)](https://docs.pytest.org/)
 [![Database](https://img.shields.io/badge/database-PostgreSQL%20%7C%20SQLite-00e676.svg?style=flat-square&logo=postgresql)](https://supabase.com/)
 [![Security](https://img.shields.io/badge/security-CSRF%20%2B%20scrypt%20%2B%20OAuth2-00e676.svg?style=flat-square)](https://owasp.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
@@ -135,7 +135,7 @@ Visit `http://localhost:5001` in your browser.
 
 ## 🧪 Automated Testing Suite
 
-PennyWise features 56 comprehensive unit and integration tests covering authentication, database models, financial calculations, multi-user isolation, and security vulnerabilities:
+PennyWise features 57 comprehensive unit and integration tests covering authentication, database models, financial calculations, multi-user isolation, and security vulnerabilities:
 
 ```bash
 pytest tests/ -v
@@ -143,7 +143,7 @@ pytest tests/ -v
 
 Output:
 ```
-============================== 56 passed in 5.79s ==============================
+============================== 57 passed in 5.88s ==============================
 ```
 
 ---
@@ -176,5 +176,5 @@ Use this structured script when recording your CS50x final project submission vi
    - Open **Reports & Statements**: review the 12-month cash-flow history and click **Download CSV** to demonstrate sanitized data export.
 
 6. **Conclusion & CS50 Sign-off (2:45 - 3:00)**:
-   - Mention the 56 passing automated tests and the live deployment on Vercel.
+   - Mention the 57 passing automated tests and the live deployment on Vercel.
    - Conclude: *"This was PennyWise, and this was CS50!"*

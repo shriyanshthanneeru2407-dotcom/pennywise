@@ -15,6 +15,8 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required, current_user, logout_user
 from app import db
 from app.models.user import User
+from app.models.category import Category
+from app.models.expense import Expense
 from app.services.export_service import generate_expenses_csv
 
 settings_bp = Blueprint("settings", __name__)
@@ -33,12 +35,86 @@ def _is_valid_email(email: str) -> bool:
 @settings_bp.route("")
 @login_required
 def index():
+    user_categories = Category.query.filter_by(user_id=current_user.id).order_by(Category.name).all()
+    system_categories = Category.query.filter_by(user_id=None).order_by(Category.name).all()
     return render_template(
         "settings/index.html",
         currencies=SUPPORTED_CURRENCIES,
         themes=SUPPORTED_THEMES,
         date_formats=DATE_FORMATS,
+        user_categories=user_categories,
+        system_categories=system_categories,
     )
+
+
+@settings_bp.route("/category/new", methods=["POST"])
+@login_required
+def add_category():
+    """Create a new custom category for the current user."""
+    name = request.form.get("name", "").strip()
+    category_type = request.form.get("category_type", "expense").strip().lower()
+    icon = request.form.get("icon", "🏷️").strip() or "🏷️"
+    color = request.form.get("color", "#00e676").strip() or "#00e676"
+
+    if category_type not in ("expense", "income"):
+        category_type = "expense"
+
+    if not name:
+        flash("Category name is required.", "danger")
+        return redirect(url_for("settings.index"))
+
+    if len(name) > 50:
+        flash("Category name must be under 50 characters.", "danger")
+        return redirect(url_for("settings.index"))
+
+    # Check duplicate name for this user
+    existing = Category.query.filter(
+        (Category.user_id == current_user.id) | (Category.user_id.is_(None)),
+        Category.name.ilike(name),
+        Category.category_type == category_type,
+    ).first()
+
+    if existing:
+        flash(f"A {category_type} category named '{name}' already exists.", "warning")
+        return redirect(url_for("settings.index"))
+
+    new_cat = Category(
+        user_id=current_user.id,
+        name=name,
+        category_type=category_type,
+        icon=icon,
+        color=color,
+    )
+    db.session.add(new_cat)
+    db.session.commit()
+
+    flash(f"Custom category '{new_cat.icon} {new_cat.name}' created successfully.", "success")
+    return redirect(url_for("settings.index"))
+
+
+@settings_bp.route("/category/<int:category_id>/delete", methods=["POST"])
+@login_required
+def delete_category(category_id):
+    """Delete a custom category owned by the current user."""
+    category = db.session.get(Category, category_id)
+
+    if not category or category.user_id != current_user.id:
+        flash("You can only delete your own custom categories.", "danger")
+        return redirect(url_for("settings.index"))
+
+    # Reassign existing expenses to the default 'Other' category if available
+    other_cat = Category.query.filter_by(user_id=None, name="Other").first()
+    if other_cat:
+        Expense.query.filter_by(category_id=category.id, user_id=current_user.id).update(
+            {"category_id": other_cat.id}
+        )
+
+    cat_name = category.name
+    db.session.delete(category)
+    db.session.commit()
+
+    flash(f"Category '{cat_name}' has been deleted.", "info")
+    return redirect(url_for("settings.index"))
 
 
 @settings_bp.route("/profile", methods=["POST"])

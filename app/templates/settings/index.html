@@ -123,6 +123,84 @@
     </div>
 </div>
 
+{# ---- Custom Categories Section ---- #}
+<div class="card mb-6">
+    <div class="card-header flex justify-between items-center">
+        <div>
+            <h3 style="font-size:1rem;margin:0;">🏷️ Custom Categories</h3>
+            <p class="text-xs text-muted" style="margin: 0.25rem 0 0;">Create personalized income and expense categories</p>
+        </div>
+    </div>
+    <div class="card-body">
+        <!-- New Category Form -->
+        <form action="{{ url_for('settings.add_category') }}" method="post" class="flex gap-3 items-end mb-6" style="background: rgba(255, 255, 255, 0.02); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); flex-wrap: wrap;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group" style="flex: 2; min-width: 180px; margin: 0;">
+                <label class="form-label text-xs" for="cat_name">Category Name</label>
+                <input type="text" id="cat_name" name="name" class="form-control" placeholder="e.g. Pet Care, Dividends" required maxlength="50">
+            </div>
+
+            <div class="form-group" style="flex: 1; min-width: 120px; margin: 0;">
+                <label class="form-label text-xs" for="cat_type">Flow Type</label>
+                <select id="cat_type" name="category_type" class="form-control">
+                    <option value="expense">💸 Expense</option>
+                    <option value="income">💵 Income</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="flex: 1; min-width: 80px; margin: 0;">
+                <label class="form-label text-xs" for="cat_icon">Emoji Icon</label>
+                <input type="text" id="cat_icon" name="icon" class="form-control" placeholder="🐕" value="🏷️" maxlength="10">
+            </div>
+
+            <div class="form-group" style="width: 70px; margin: 0;">
+                <label class="form-label text-xs" for="cat_color">Color</label>
+                <input type="color" id="cat_color" name="color" value="#00e676" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); cursor: pointer;">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="height: 38px; white-space: nowrap;">
+                ➕ Add Category
+            </button>
+        </form>
+
+        <!-- User's Custom Categories -->
+        {% if user_categories %}
+            <h4 class="text-xs uppercase text-muted mb-3" style="letter-spacing: 0.05em;">Your Custom Categories</h4>
+            <div class="grid-2 mb-6" style="gap: 0.75rem;">
+                {% for uc in user_categories %}
+                <div class="card flex justify-between items-center" style="padding: 0.75rem 1rem; border: 1px solid var(--border); background: var(--bg-surface);">
+                    <div class="flex items-center gap-2">
+                        <span class="category-dot" style="background: {{ uc.color }}; width: 10px; height: 10px; border-radius: 50%;"></span>
+                        <span style="font-size: 1.1rem;">{{ uc.icon }}</span>
+                        <span class="font-medium text-sm">{{ uc.name }}</span>
+                        <span class="badge {% if uc.category_type == 'income' %}badge-success{% else %}badge-gray{% endif %}" style="font-size: 0.7rem;">
+                            {{ uc.category_type|capitalize }}
+                        </span>
+                    </div>
+                    <form action="{{ url_for('settings.delete_category', category_id=uc.id) }}" method="post" onsubmit="return confirm('Delete category {{ uc.name }}?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-ghost btn-sm" style="color: var(--danger); padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+                            🗑️ Delete
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- System Categories Overview -->
+        <h4 class="text-xs uppercase text-muted mb-2" style="letter-spacing: 0.05em;">Default System Categories</h4>
+        <div class="flex gap-2" style="flex-wrap: wrap;">
+            {% for sc in system_categories %}
+                <span class="badge badge-gray" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;">
+                    {{ sc.icon }} {{ sc.name }} ({{ sc.category_type }})
+                </span>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
 {# ---- Export section ---- #}
 <div class="card mb-6">
     <div class="card-header">

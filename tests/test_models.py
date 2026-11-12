@@ -195,3 +195,43 @@ class TestReceiptModel:
             db.session.commit()
 
             assert db.session.get(Receipt, rcpt.id) is None
+
+
+
+class TestCustomCategoryEndpoints:
+    def test_create_and_delete_custom_category(self, client, app):
+        """User can create a custom category and delete it."""
+        from tests.conftest import login
+
+        with app.app_context():
+            u = User(name="Cat Tester", email="cattester@test.com")
+            u.set_password("Password123!")
+            db.session.add(u)
+            db.session.commit()
+            u_id = u.id
+
+        login(client, "cattester@test.com", "Password123!")
+
+        # Create custom category
+        resp = client.post("/settings/category/new", data={
+            "name": "Crypto",
+            "category_type": "income",
+            "icon": "🪙",
+            "color": "#f59e0b",
+        }, follow_redirects=True)
+        assert resp.status_code == 200
+        assert b"Custom category" in resp.data
+
+        with app.app_context():
+            cat = Category.query.filter_by(user_id=u_id, name="Crypto").first()
+            assert cat is not None
+            assert cat.category_type == "income"
+            cat_id = cat.id
+
+        # Delete custom category
+        resp2 = client.post(f"/settings/category/{cat_id}/delete", follow_redirects=True)
+        assert resp2.status_code == 200
+        assert b"deleted" in resp2.data
+
+        with app.app_context():
+            assert db.session.get(Category, cat_id) is None
