@@ -1,68 +1,73 @@
-# SpendWise — CS50x Video Demonstration Guide & Script
+# PennyWise 💰 — CS50x Video Demonstration Guide & Script
 
-This document provides a concise 3-minute video presentation script and checklist for submitting your CS50x Final Project.
+This document provides a concise 3-minute video presentation script and checklist for submitting your CS50x 2026 Final Project.
 
 ---
 
 ## 📋 Video Checklist (CS50x Requirements)
-- [ ] Length: Between 2 and 3 minutes.
-- [ ] Title of your project stated clearly at the beginning.
-- [ ] Your name and your city/country stated at the beginning.
-- [ ] Clear demonstration of the application running in your browser.
+- [ ] Length: Between 2 and 3 minutes (strict CS50 requirement).
+- [ ] Title of your project stated clearly at the beginning: **PennyWise – Smart Personal Finance & Wealth Tracker**.
+- [ ] Your name (**Srikanth Thanneeru**) and your city/country stated at the beginning.
+- [ ] Clear demonstration of the application running in your browser (at [https://pennywise-cs50.vercel.app](https://pennywise-cs50.vercel.app) or locally).
 - [ ] Uploaded to YouTube (public or unlisted) or Loom.
 
 ---
 
-## 🎬 3-Minute Script (Step-by-Step)
+## 🎬 3-Minute Narration Script (Shot-by-Shot)
 
 ### Section 1: Introduction (0:00 – 0:30)
-> *"Hello, this is [Your Name] from [Your City, Country], and this is **SpendWise**, my final project for CS50x.*
+> *"Hello world! My name is Srikanth Thanneeru, and this is **PennyWise**, my final project for CS50x 2026.*
 >
-> *SpendWise is a production-grade personal expense tracking and financial analytics web application built with Python, Flask, SQL, and vanilla JavaScript. Inspired by mathematical financial terminals, SpendWise is designed to replace guesswork with deterministic calculations — using pure Python and SQL algorithms rather than opaque third-party AI APIs."*
+> *PennyWise is a modern personal finance and wealth management web application engineered with Python, Flask, Supabase PostgreSQL 17, and Chart.js. Deployed live on Vercel, PennyWise solves personal cash flow tracking using an arbitrary-precision dual cash-flow engine, automated budget threshold alerts, a savings goals vault, and Penny — an AI financial companion."*
 
 ---
 
-### Section 2: Landing Page & Authentication (0:30 – 1:00)
-*(Screen share: Landing page at http://127.0.0.1:5000)*
-> *"Here on the landing page, we see the custom obsidian and neon emerald mathematical design system. Let's log in using our demo account.*
+### Section 2: Landing Page & Authentication (0:30 – 0:55)
+*(Screen share: Landing page at https://pennywise-cs50.vercel.app)*
+> *"Here on the landing page, we see our dark obsidian matte and neon emerald fintech design system. Let's log in using our demo account.*
 >
-> *Authentication uses Flask-Login with passwords securely hashed using `scrypt` via Werkzeug. All forms are protected against Cross-Site Request Forgery with Flask-WTF tokens, and login errors use anti-enumeration protections."*
+> *Authentication uses Flask-Login with passwords securely hashed using `scrypt` via Werkzeug. All routes enforce CSRF protection with strict origin validation, anti-enumeration security, and user-specific database isolation."*
 
 ---
 
-### Section 3: The Mathematical Dashboard (1:00 – 1:40)
+### Section 3: The Financial Dashboard & Cash-Flow Engine (0:55 – 1:35)
 *(Screen share: Dashboard)*
-> *"Upon logging in, the dashboard immediately calculates our monthly metrics in real time:*
-> - *First, **$\Sigma$ Total Expenditure**, computed using exact `NUMERIC(12, 2)` decimal arithmetic to eliminate any floating-point rounding errors.*
-> - *Second, our **$\lim$ Monthly Budget Ceiling**, showing our current utilization and automated color-coded alerts.*
-> - *Third, our **$\Delta$ Margin Surplus or Deficit**.*
-> - *And fourth, our **$\bar{x}$ Mean Consumption Velocity** per day.*
+> *"Upon logging in, the dashboard immediately displays our core cash flow metrics:*
+> - *Total Cash Inflows (Salary, Freelance, Investments).*
+> - *Total Outflows, computed using exact `Decimal` arithmetic to eliminate floating-point drift across 10 international currencies.*
+> - *Net Available Balance and overall monthly savings rate.*
+> - *Monthly and category budget utilization with automated 50%, 80%, and 100% threshold badges.*
 >
-> *Below, Chart.js displays our temporal daily spending trend $f(t)$ and category distribution $P(C)$, loaded asynchronously via our JSON endpoints."*
+> *Users can quickly deposit surplus into their Savings Vault directly from the dashboard, or toggle our interactive spending trend charts between 3-month, 6-month, and 12-month timeframes."*
 
 ---
 
-### Section 4: Expense Management & Security (1:40 – 2:20)
-*(Screen share: Expenses page and Add Expense form)*
-> *"In the Expenses section, users can perform full CRUD operations. Let's add a new expense. We select a category, enter an amount, date, payment method, and can attach a receipt image or PDF with strict MIME and file size validation.*
+### Section 4: Power-User UX & Transactions Ledger (1:35 – 2:10)
+*(Screen share: Press `⌘K` or `Ctrl+K` to open Command Palette, then open Transactions page)*
+> *"PennyWise includes fintech power-user shortcuts. Pressing `⌘K` opens our instant Command Palette for rapid navigation, while pressing `?` reveals keyboard shortcuts.*
 >
-> *Crucially, SpendWise enforces horizontal privilege isolation: every database query is strictly scoped to the logged-in user. If an unauthorized user attempts to view or delete another user's expense ID, the application immediately aborts with a 404 Not Found to prevent resource enumeration."*
+> *In the Transactions ledger, users can filter by date, category, and cash flow type. Adding a transaction allows attaching receipts with strict MIME validation, and clicking any receipt opens our in-app lightbox modal with PDF preview and zoom controls."*
 
 ---
 
-### Section 5: Budgets, Recurring & Insights (2:20 – 2:50)
-*(Screen share: Budgets, Recurring, and Insights pages)*
-> *"In the **Budget** view, users can adjust dynamic spending limits with visual progress indicators.*
+### Section 5: Savings Vault, Recurring Bills & Penny AI (2:10 – 2:45)
+*(Screen share: Show Savings Vault, Recurring Subscriptions, and /penny)*
+> *"In the Savings Vault, users track milestone goals with visual progress bars. Our Recurring Subscriptions engine tracks upcoming obligations like rent and Netflix with automated next-due dates and 1-click ledger logging.*
 >
-> *In **Recurring Expenses**, users can track recurring commitments like rent or subscriptions and log them with a single click when due.*
->
-> *In **Insights**, our deterministic analytics engine analyzes period-over-period variance $\Delta\%$, largest single expenses, and category concentrations.*
->
-> *Finally, users can export all transactions to a cleanly formatted CSV file from their settings."*
+> *Finally, Penny AI — our personal finance assistant — analyzes the user's real financial ledger to deliver personalized spending observations, budget overrun warnings, and actionable savings advice."*
 
 ---
 
-### Section 6: Conclusion (2:50 – 3:00)
-> *"SpendWise is fully tested with 35 automated pytest test cases and ready for deployment on Vercel with PostgreSQL.*
+### Section 6: Conclusion (2:45 – 3:00)
+*(Screen share: Annual reports page showing printable statement or CSV export)*
+> *"PennyWise also includes 12-month performance reports, printable statement styling, and formula-injection-safe CSV exports. It is fully covered by 81 automated tests and is live on Vercel backed by PostgreSQL 17.*
 >
-> *Thank you to David Malan and the entire CS50 team for this incredible journey. This was SpendWise, and this was CS50!"*
+> *Thank you to David Malan and the entire CS50 team. This was PennyWise, and this was CS50!"*
+
+---
+
+## 💡 Recording Tips
+1. **Screen Resolution**: Set your browser zoom to 100% or 110% on a standard 1080p display for crisp readability.
+2. **Audio**: Use a quiet room and headphones with a dedicated microphone if possible.
+3. **Browser Tabs**: Have [https://pennywise-cs50.vercel.app](https://pennywise-cs50.vercel.app) pre-loaded in full-screen mode.
+4. **Duration**: Use a phone timer to ensure you finish between 2:15 and 2:50.
