@@ -256,5 +256,12 @@
         const bodyTheme = document.body.dataset.theme;
         if (bodyTheme) applyTheme(bodyTheme);
         updateThemeIcon(document.documentElement.getAttribute("data-theme") || "dark");
+
+        // Register Service Worker for PWA installability
+        if ("serviceWorker" in navigator && window.location.protocol === "https:") {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("/static/sw.js").catch(() => {});
+            });
+        }
     });
 })();
