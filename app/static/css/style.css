@@ -1499,3 +1499,73 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
 /* Divider */
 .divider { border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+/* ============================================================
+   14. Print Media Styles (Professional Financial Statements)
+   ============================================================ */
+@media print {
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 11pt !important;
+    }
+
+    /* Hide non-printable elements */
+    .app-sidebar,
+    .app-header,
+    .btn,
+    button,
+    form,
+    .badge-success,
+    .sidebar-overlay,
+    .nav-section {
+        display: none !important;
+    }
+
+    .app-main {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    .app-content {
+        padding: 0 !important;
+    }
+
+    .card {
+        border: 1px solid #cccccc !important;
+        background: #ffffff !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+        margin-bottom: 1.5rem !important;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    th, td {
+        border: 1px solid #e5e7eb !important;
+        padding: 6px 8px !important;
+        color: #111827 !important;
+    }
+
+    th {
+        background: #f3f4f6 !important;
+        font-weight: 600 !important;
+    }
+
+    .text-success { color: #059669 !important; }
+    .text-danger  { color: #dc2626 !important; }
+    .text-muted   { color: #6b7280 !important; }
+
+    /* Print header title */
+    .print-only-header {
+        display: block !important;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #000;
+        padding-bottom: 0.5rem;
+    }
+}
+

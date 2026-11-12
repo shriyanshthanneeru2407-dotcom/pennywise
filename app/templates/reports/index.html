@@ -19,6 +19,13 @@
     </div>
 </div>
 
+<div class="print-only-header" style="display: none;">
+    <h1 style="font-size: 1.5rem; margin: 0 0 0.25rem 0; color: #000;">PennyWise Financial Statement</h1>
+    <div style="font-size: 0.875rem; color: #555; margin-bottom: 0.5rem;">
+        Account: {{ current_user.name }} ({{ current_user.email }}) &bull; Statement Period: {{ selected_year }} &bull; Currency: {{ current_user.currency }}
+    </div>
+</div>
+
 {# ---- Annual Summary Cards ---- #}
 <div class="dashboard-stats mb-6">
     <div class="stat-card">
