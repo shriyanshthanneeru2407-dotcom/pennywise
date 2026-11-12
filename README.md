@@ -176,5 +176,5 @@ Use this structured script when recording your CS50x final project submission vi
    - Open **Reports & Statements**: review the 12-month cash-flow history and click **Download CSV** to demonstrate sanitized data export.
 
 6. **Conclusion & CS50 Sign-off (2:45 - 3:00)**:
-   - Mention the 57 passing automated tests and the live deployment on Vercel.
+   - Mention the 60 passing automated tests and the live deployment on Vercel.
    - Conclude: *"This was PennyWise, and this was CS50!"*

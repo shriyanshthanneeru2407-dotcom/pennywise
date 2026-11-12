@@ -97,16 +97,16 @@
         <div>
             <h3 style="font-size:1rem;margin:0;">
                 {% if pagination.total == 0 %}
-                    No expenses found
+                    No transactions found
                 {% else %}
-                    {{ pagination.total }} expense{{ 's' if pagination.total != 1 }}
+                    {{ pagination.total }} transaction{{ 's' if pagination.total != 1 }}
                 {% endif %}
             </h3>
-            {% if search or cat_filter or payment_filter or date_from or date_to %}
+            {% if search or cat_filter or payment_filter or type_filter or date_from or date_to %}
                 <span class="text-xs text-muted">Filtered results</span>
             {% endif %}
         </div>
-        <a href="{{ url_for('expenses.new') }}" class="btn btn-primary btn-sm">+ Add Expense</a>
+        <a href="{{ url_for('expenses.new') }}" class="btn btn-primary btn-sm">+ Add Transaction</a>
     </div>
 
     {% if expenses %}
