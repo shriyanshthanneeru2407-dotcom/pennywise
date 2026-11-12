@@ -29,6 +29,18 @@
             <div style="flex: 1; border-bottom: 1px solid var(--border);"></div>
         </div>
 
+        <!-- Quick Demo Fill Button -->
+        <button type="button" onclick="fillDemoAccount()" class="btn btn-secondary btn-block" style="margin-bottom: 1.25rem; background: rgba(0, 230, 118, 0.08); border: 1px dashed var(--primary); color: var(--primary); font-size: 0.85rem; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            ⚡ Auto-fill CS50 Demo Account
+        </button>
+
+        <script>
+        function fillDemoAccount() {
+            document.getElementById('email').value = 'demo@pennywise.app';
+            document.getElementById('password').value = 'demo1234';
+        }
+        </script>
+
         <!-- Login form -->
         <form action="{{ url_for('auth.login') }}" method="post" novalidate>
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
