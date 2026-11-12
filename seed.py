@@ -30,6 +30,7 @@ from app.models.expense import Expense, PAYMENT_METHODS
 from app.models.budget import Budget
 from app.models.recurring import RecurringExpense
 from app.models.savings import SavingsGoal, SavingsContribution
+from app.models.notification import Notification
 
 
 def seed():
@@ -236,6 +237,37 @@ def seed():
 
         db.session.commit()
         print("     ✓ Recurring expenses created")
+
+        # --- 7. Seed demo notifications ---
+        print("  → Creating sample notifications...")
+        if Notification.query.filter_by(user_id=user.id).count() == 0:
+            n1 = Notification(
+                user_id=user.id,
+                title="Budget Utilization Alert",
+                message="You have used 82% of your monthly entertainment budget.",
+                type="warning",
+                link="/budget",
+                is_read=False,
+            )
+            n2 = Notification(
+                user_id=user.id,
+                title="Upcoming Subscription",
+                message="Netflix Standard (₹649) is due in 14 days.",
+                type="info",
+                link="/recurring",
+                is_read=False,
+            )
+            n3 = Notification(
+                user_id=user.id,
+                title="Savings Goal Milestone! 🎉",
+                message="Congratulations! Your Emergency Fund reached 65% of its target.",
+                type="success",
+                link="/savings",
+                is_read=True,
+            )
+            db.session.add_all([n1, n2, n3])
+            db.session.commit()
+            print("     ✓ Notifications created")
 
         print("\n✅ Seed complete!")
         print(f"   Demo login: {demo_email}")
