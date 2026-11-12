@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PennyWise — CS50x Final Project Presentation Title Card</title>
+    <style>
+        :root {
+            --bg: #040709;
+            --surface: #0a0f14;
+            --border: #14202b;
+            --emerald: #00e676;
+            --emerald-glow: rgba(0, 230, 118, 0.25);
+            --text-main: #f0f6fc;
+            --text-muted: #8b949e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 20%, rgba(0, 230, 118, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 80% 80%, rgba(0, 230, 118, 0.04) 0%, transparent 40%);
+        }
+
+        .presentation-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 3.5rem 4rem;
+            max-width: 900px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 40px var(--emerald-glow);
+            position: relative;
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .cs50-badge {
+            display: inline-block;
+            background: rgba(0, 230, 118, 0.12);
+            color: var(--emerald);
+            border: 1px solid rgba(0, 230, 118, 0.3);
+            border-radius: 999px;
+            padding: 0.4rem 1.25rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, #ffffff 40%, var(--emerald) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagline {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin: 2rem 0;
+            padding: 1.5rem 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .meta-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+        }
+
+        .meta-val {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .meta-val.highlight {
+            color: var(--emerald);
+        }
+
+        .features-chips {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.6rem;
+            margin-top: 1.5rem;
+        }
+
+        .chip {
+            background: #0d151c;
+            border: 1px solid #1a2733;
+            border-radius: 8px;
+            padding: 0.4rem 0.85rem;
+            font-size: 0.82rem;
+            color: #c9d1d9;
+        }
+
+        .footer-link {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .footer-link a {
+            color: var(--emerald);
+            text-decoration: none;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="presentation-card">
+        <div class="cs50-badge">CS50x 2026 Final Project Capstone</div>
+        <h1>PennyWise 💰</h1>
+        <p class="tagline">Smart Personal Finance, Dual Cash-Flow & Wealth Management System</p>
+
+        <div class="metadata-grid">
+            <div class="meta-item">
+                <span class="meta-label">Developer</span>
+                <span class="meta-val">Srikanth Thanneeru</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Architecture</span>
+                <span class="meta-val highlight">Python • Flask • PostgreSQL 17</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Deployment</span>
+                <span class="meta-val">Vercel Edge + Supabase</span>
+            </div>
+        </div>
+
+        <div class="features-chips">
+            <span class="chip">⚖️ Dual Cash-Flow Engine</span>
+            <span class="chip">🌍 10 International Currencies</span>
+            <span class="chip">🎯 Savings Goals Vault</span>
+            <span class="chip">🚨 50/80/100% Budget Alerts</span>
+            <span class="chip">✨ Penny AI Financial Companion</span>
+            <span class="chip">⌨️ Command Palette (⌘K)</span>
+            <span class="chip">🧪 81/81 Tests (100% Pass)</span>
+        </div>
+
+        <div class="footer-link">
+            Live Production Web Application: <a href="https://pennywise-cs50.vercel.app" target="_blank">pennywise-cs50.vercel.app</a>
+        </div>
+    </div>
+
+</body>
+</html>
