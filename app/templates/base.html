@@ -203,7 +203,7 @@
 
     <!-- Page content -->
     <main class="page-body" id="main-content">
-        {{ self.content() }}
+        {% block content %}{% endblock %}
     </main>
 </div>
 
@@ -260,9 +260,12 @@
         </div>
     {% endif %}
 {% endwith %}
-{% endif %}
 
-{% block content %}{% endblock %}
+{% block auth_content %}
+    {{ self.content() }}
+{% endblock %}
+
+{% endif %}
 
 <!-- Confirm delete modal -->
 <div class="modal-overlay" id="confirmOverlay" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
