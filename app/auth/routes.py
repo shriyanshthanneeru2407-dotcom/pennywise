@@ -11,6 +11,7 @@ Security design:
 """
 
 import re
+import secrets
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature, BadSignature
 from flask import (
     Blueprint,
@@ -161,7 +162,8 @@ def google_login():
 
     if not is_google_oauth_configured():
         flash(
-            "Google Sign-In is not yet configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your .env or Vercel environment variables.",
+            "Google Sign-In is not yet configured. Please set GOOGLE_CLIENT_ID and "
+            "GOOGLE_CLIENT_SECRET in your .env or Vercel environment variables.",
             "warning",
         )
         return redirect(url_for("auth.login"))
@@ -261,7 +263,8 @@ def forgot_password():
             # In production without SMTP, log URL safely for testing
             current_app.logger.info(f"Password reset link for {email}: {reset_url}")
             flash(
-                "If an account with that email exists, a password reset link has been generated. (Check server logs in local mode)",
+                "If an account with that email exists, a password reset link has been generated. "
+                "(Check server logs in local mode)",
                 "info",
             )
         else:

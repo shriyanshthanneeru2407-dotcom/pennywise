@@ -33,6 +33,6 @@ def register_error_handlers(app):
 
     @app.errorhandler(413)
     def file_too_large(e):
-        from flask import flash, redirect, request
+        from flask import flash
         flash("File is too large. Maximum size is 10 MB.", "danger")
         return render_template("errors/413.html"), 413

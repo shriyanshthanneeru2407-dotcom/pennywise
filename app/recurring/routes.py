@@ -261,15 +261,20 @@ def log_expense(recurring_id):
 
     try:
         from app.notifications.routes import create_notification
+        amt_str = f"{current_user.currency_symbol}{recurring.amount:,.2f}"
+        due_str = recurring.next_due_date.strftime('%d %b %Y')
         create_notification(
             user_id=current_user.id,
             title="Recurring Expense Logged",
-            message=f"{recurring.description} ({current_user.currency_symbol}{recurring.amount:,.2f}) was recorded. Next due date: {recurring.next_due_date.strftime('%d %b %Y')}.",
+            message=f"{recurring.description} ({amt_str}) was recorded. Next due date: {due_str}.",
             type_="info",
             link="/expenses",
         )
     except Exception:
         pass
 
-    flash(f"Expense logged: {recurring.description}. Next due: {recurring.next_due_date.strftime('%d %b %Y')}.", "success")
+    flash(
+        f"Expense logged: {recurring.description}. Next due: {recurring.next_due_date.strftime('%d %b %Y')}.",
+        "success",
+    )
     return redirect(url_for("recurring.index"))

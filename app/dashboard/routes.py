@@ -10,7 +10,6 @@ All data is filtered by current_user.id — never expose another user's data.
 """
 
 from datetime import date
-from decimal import Decimal
 
 from flask import Blueprint, render_template, jsonify
 from flask_login import login_required, current_user

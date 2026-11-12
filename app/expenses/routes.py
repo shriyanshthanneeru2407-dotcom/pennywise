@@ -24,7 +24,7 @@ from decimal import Decimal, InvalidOperation
 
 from flask import (
     Blueprint, render_template, redirect, url_for, flash,
-    request, abort, send_file, current_app, jsonify
+    request, abort, send_file, jsonify
 )
 from flask_login import login_required, current_user
 from sqlalchemy import or_

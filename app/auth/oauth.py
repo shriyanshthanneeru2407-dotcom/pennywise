@@ -8,13 +8,12 @@ Implements standard OpenID Connect / OAuth 2.0 Authorization Code Flow:
   4. Fetch and verify Google profile info (email, name, picture, sub/google_id).
 """
 
-import os
-import secrets
-import urllib.parse
 import json
-import urllib.request
+import secrets
 import urllib.error
-from flask import current_app, url_for, session
+import urllib.parse
+import urllib.request
+from flask import current_app, session
 
 GOOGLE_AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"

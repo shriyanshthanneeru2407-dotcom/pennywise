@@ -16,7 +16,6 @@ The STORAGE_PROVIDER config value selects the backend:
 
 import os
 import uuid
-import mimetypes
 from flask import current_app, url_for
 
 

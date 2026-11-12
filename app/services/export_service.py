@@ -10,7 +10,6 @@ import csv
 import io
 from app.models.expense import Expense
 from app.models.category import Category
-from app import db
 
 
 def generate_expenses_csv(user_id: int) -> str:

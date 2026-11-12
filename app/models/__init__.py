@@ -11,4 +11,15 @@ from .receipt import Receipt
 from .savings import SavingsGoal, SavingsContribution
 from .notification import Notification
 
-__all__ = ["User", "Category", "Expense", "Budget", "CategoryBudget", "RecurringExpense", "Receipt", "SavingsGoal", "SavingsContribution", "Notification"]
+__all__ = [
+    "User",
+    "Category",
+    "Expense",
+    "Budget",
+    "CategoryBudget",
+    "RecurringExpense",
+    "Receipt",
+    "SavingsGoal",
+    "SavingsContribution",
+    "Notification",
+]

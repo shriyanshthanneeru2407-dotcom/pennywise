@@ -45,11 +45,16 @@ class User(UserMixin, db.Model):
     # Relationships
     expenses = db.relationship("Expense", backref="owner", lazy="dynamic", cascade="all, delete-orphan")
     budgets = db.relationship("Budget", backref="owner", lazy="dynamic", cascade="all, delete-orphan")
-    recurring_expenses = db.relationship("RecurringExpense", backref="owner", lazy="dynamic", cascade="all, delete-orphan")
-    categories = db.relationship("Category", backref="owner", lazy="dynamic", cascade="all, delete-orphan",
-                                 foreign_keys="Category.user_id")
+    recurring_expenses = db.relationship(
+        "RecurringExpense", backref="owner", lazy="dynamic", cascade="all, delete-orphan"
+    )
+    categories = db.relationship(
+        "Category", backref="owner", lazy="dynamic", cascade="all, delete-orphan", foreign_keys="Category.user_id"
+    )
     savings_goals = db.relationship("SavingsGoal", backref="owner", lazy="dynamic", cascade="all, delete-orphan")
-    notifications = db.relationship("Notification", back_populates="user", lazy="dynamic", cascade="all, delete-orphan")
+    notifications = db.relationship(
+        "Notification", back_populates="user", lazy="dynamic", cascade="all, delete-orphan"
+    )
 
     # --- Password helpers ---
 

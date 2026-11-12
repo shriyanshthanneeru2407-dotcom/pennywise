@@ -43,7 +43,7 @@ DEFAULT_CATEGORIES = [
     {"name": "Food",          "icon": "🍽️",  "color": "#ef4444", "category_type": "expense"},
     {"name": "Groceries",     "icon": "🛒",  "color": "#f97316", "category_type": "expense"},
     {"name": "Shopping",      "icon": "🛍️",  "color": "#8b5cf6", "category_type": "expense"},
-    {"name": "Transportation","icon": "🚗",  "color": "#3b82f6", "category_type": "expense"},
+    {"name": "Transportation", "icon": "🚗",  "color": "#3b82f6", "category_type": "expense"},
     {"name": "Healthcare",    "icon": "💊",  "color": "#10b981", "category_type": "expense"},
     {"name": "Entertainment", "icon": "🎬",  "color": "#ec4899", "category_type": "expense"},
     {"name": "Education",     "icon": "📚",  "color": "#0ea5e9", "category_type": "expense"},

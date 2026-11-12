@@ -13,7 +13,7 @@ Key functions:
 """
 
 from decimal import Decimal
-from datetime import date, datetime
+from datetime import date
 import calendar
 
 from sqlalchemy import func, extract, or_
@@ -21,7 +21,7 @@ from app import db
 from app.models.expense import Expense
 from app.models.category import Category
 from app.models.budget import Budget
-from app.models.savings import SavingsGoal, SavingsContribution
+from app.models.savings import SavingsGoal
 from app.models.user import User
 
 
@@ -364,7 +364,7 @@ def get_insights(user_id: int) -> list:
             })
     elif comparison["previous_total"] == 0 and summary["count"] > 0:
         observations.append({
-            "text": f"🗓️ This is your first month with recorded expenses.",
+            "text": "🗓️ This is your first month with recorded expenses.",
             "type": "info",
         })
 
@@ -378,7 +378,10 @@ def get_insights(user_id: int) -> list:
             diff_pct = float((_safe_divide(cat["total"] - prev_amt, prev_amt) * 100).quantize(Decimal("0.1")))
             if diff_pct >= 20.0:
                 observations.append({
-                    "text": f"📊 Increased spending in {cat['icon']} {cat['name']}: up by {diff_pct:.0f}% compared to last month.",
+                    "text": (
+                        f"📊 Increased spending in {cat['icon']} {cat['name']}: "
+                        f"up by {diff_pct:.0f}% compared to last month."
+                    ),
                     "type": "warning",
                 })
                 break
@@ -411,13 +414,19 @@ def get_insights(user_id: int) -> list:
         # Budget surplus recommendation
         if summary.get("remaining") and summary["remaining"] > 0 and pct < 80:
             observations.append({
-                "text": f"💡 You have a remaining surplus of {symbol}{summary['remaining']:,.2f}. Consider depositing it into your Savings Vault!",
+                "text": (
+                    f"💡 You have a remaining surplus of {symbol}{summary['remaining']:,.2f}. "
+                    "Consider depositing it into your Savings Vault!"
+                ),
                 "type": "success",
             })
     elif not summary["budget"]:
         recommended = int(summary["total"] * Decimal("1.1")) if summary["total"] > 0 else 50000
         observations.append({
-            "text": f"💡 Budget Recommendation: Consider setting a monthly limit of {symbol}{recommended:,} to track your cash flow.",
+            "text": (
+                f"💡 Budget Recommendation: Consider setting a monthly limit of "
+                f"{symbol}{recommended:,} to track your cash flow."
+            ),
             "type": "info",
         })
 

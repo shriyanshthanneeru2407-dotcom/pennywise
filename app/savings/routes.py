@@ -4,7 +4,7 @@ app/savings/routes.py — Savings goals and contribution tracking.
 
 from decimal import Decimal
 from datetime import date
-from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app import db
 from app.models.savings import SavingsGoal, SavingsContribution
@@ -144,10 +144,11 @@ def contribute(goal_id: int):
     if completed_now:
         try:
             from app.notifications.routes import create_notification
+            target_str = f"{current_user.currency_symbol}{goal.target_amount:,.2f}"
             create_notification(
                 user_id=current_user.id,
                 title="Savings Goal Completed! 🎉",
-                message=f"Congratulations! You reached 100% of your '{goal.title}' target ({current_user.currency_symbol}{goal.target_amount:,.2f})!",
+                message=f"Congratulations! You reached 100% of your '{goal.title}' target ({target_str})!",
                 type_="success",
                 link="/savings",
             )
