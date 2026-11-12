@@ -188,3 +188,43 @@ class TestAnalytics:
 
         result = _safe_divide(Decimal("100"), 0)
         assert result == Decimal("0")
+
+    def test_api_category_spending_endpoint(self, client, app):
+        """Verify /dashboard/api/category-spending returns JSON for doughnut chart."""
+        from tests.conftest import login
+        user_id = self._make_user(db, app, "api_cat_user@test.com")
+        self._add_expense(app, user_id, "450.00")
+        login(client, "api_cat_user@test.com", "password")
+
+        resp = client.get("/dashboard/api/category-spending")
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert "labels" in data and "data" in data and "colors" in data
+        assert len(data["labels"]) > 0
+        assert 450.0 in data["data"]
+
+    def test_api_daily_spending_endpoint(self, client, app):
+        """Verify /dashboard/api/daily-spending returns month-long daily totals for line chart."""
+        from tests.conftest import login
+        user_id = self._make_user(db, app, "api_daily_user@test.com")
+        self._add_expense(app, user_id, "250.00")
+        login(client, "api_daily_user@test.com", "password")
+
+        resp = client.get("/dashboard/api/daily-spending")
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert "labels" in data and "data" in data
+        assert len(data["labels"]) >= 28  # At least 28 days in any month
+
+    def test_api_monthly_comparison_endpoint(self, client, app):
+        """Verify /dashboard/api/monthly-comparison returns history for bar chart with ?months=N."""
+        from tests.conftest import login
+        user_id = self._make_user(db, app, "api_comp_user@test.com")
+        self._add_expense(app, user_id, "300.00")
+        login(client, "api_comp_user@test.com", "password")
+
+        resp = client.get("/dashboard/api/monthly-comparison?months=3")
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert len(data["labels"]) == 3
+        assert len(data["data"]) == 3
