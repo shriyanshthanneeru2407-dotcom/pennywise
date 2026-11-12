@@ -225,6 +225,7 @@ def get_monthly_comparison(user_id: int) -> dict:
                 Expense.user_id == user_id,
                 extract("year", Expense.expense_date) == year,
                 extract("month", Expense.expense_date) == month,
+                or_(Expense.transaction_type == "expense", Expense.transaction_type == None),  # noqa: E711
             )
             .scalar()
         )
@@ -268,6 +269,7 @@ def get_last_6_months_totals(user_id: int) -> list:
                 Expense.user_id == user_id,
                 extract("year", Expense.expense_date) == year,
                 extract("month", Expense.expense_date) == month,
+                or_(Expense.transaction_type == "expense", Expense.transaction_type == None),  # noqa: E711
             )
             .scalar()
         )
