@@ -47,8 +47,9 @@ pennywise/
 │   ├── budgets/                 # Blueprint: Overall & Category budgets + alerts
 │   ├── savings/                 # Blueprint: Savings goals & vault contributions
 │   ├── recurring/               # Blueprint: Subscriptions & automated entries
+│   ├── notifications/           # Blueprint: In-app notification center & alerts API
 │   ├── insights/                # Blueprint: Cash flow analytics & trends
-│   ├── reports/                 # Blueprint: 12-month statements & CSV export
+│   ├── reports/                 # Blueprint: 12-month statements & CSV export (with print stylesheet)
 │   ├── settings/                # Blueprint: Profile, currency, themes, account deletion
 │   ├── models/                  # Declarative SQLAlchemy models
 │   │   ├── user.py              # User, currencies, Google OAuth profile
@@ -57,16 +58,19 @@ pennywise/
 │   │   ├── budget.py            # Monthly & Category budgets
 │   │   ├── savings.py           # Savings goals & contribution history
 │   │   ├── recurring.py         # Recurring subscriptions
+│   │   ├── notification.py      # Threshold notifications & alert lifecycle
 │   │   └── receipt.py           # Receipts metadata
 │   ├── services/
 │   │   ├── analytics.py         # Financial calculations & month-over-month comparisons
 │   │   ├── export_service.py    # Injection-safe CSV generation
 │   │   └── storage_service.py   # Dual-adapter receipt file management
 │   ├── static/
-│   │   ├── css/style.css        # Premium Obsidian Matte + Neon Emerald design
+│   │   ├── css/style.css        # Premium Obsidian Matte + Neon Emerald design & Print Media CSS
 │   │   └── images/logo.jpg      # Animated branding
 │   └── templates/               # Jinja2 template hierarchy
-├── tests/                       # Automated pytest test suite (60 tests)
+├── scripts/
+│   └── test_live_e2e.py         # 11-step automated live production E2E user journey suite
+├── tests/                       # Automated pytest test suite (63 unit/integration tests)
 │   ├── conftest.py              # Test client, app context, database isolation
 │   ├── test_auth.py             # Auth, password reset, Google OAuth tests
 │   ├── test_budgets.py          # Monthly & category budget tests
@@ -135,15 +139,26 @@ Visit `http://localhost:5001` in your browser.
 
 ## 🧪 Automated Testing Suite
 
-PennyWise features 60 comprehensive unit and integration tests covering authentication, database models, financial calculations, multi-user isolation, recurring subscriptions, and security vulnerabilities:
+PennyWise features **74 automated tests** (63 unit/integration tests + 11 live production E2E user journey tests) covering authentication, database models, financial calculations, multi-user isolation, recurring subscriptions, notifications, and security vulnerabilities:
 
 ```bash
+# 1. Run local test suite
 pytest tests/ -v
 ```
 
 Output:
 ```
-============================== 60 passed in 6.48s ==============================
+============================== 63 passed in 6.41s ==============================
+```
+
+```bash
+# 2. Run live production E2E user journey tests
+python scripts/test_live_e2e.py
+```
+
+Output:
+```
+🎉 ALL 11 LIVE PRODUCTION END-TO-END TESTS PASSED SUCCESSFULLY!
 ```
 
 ---
